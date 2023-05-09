@@ -1,0 +1,8 @@
+[dependencies]
+base = "0.8.7"
+icrc1 = "0.0.1"
+encoding = "https://github.com/aviate-labs/encoding.mo#v0.4.1"
+actors = "./src/actors-{MOPS_ENV}"
+
+[dev-dependencies]
+test = "1.0.1"

@@ -19,3 +19,5 @@ dist/
 
 # environment variables
 .env
+
+.mops

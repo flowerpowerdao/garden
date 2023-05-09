@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "start": "npm run replica && npm run deploy",
+    "replica": "dfx stop && dfx start --clean --background",
+    "sources:test": "MOPS_ENV=test mops sources"
+  }
+}

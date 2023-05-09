@@ -1,0 +1,4 @@
+[submodule "power-equalizer"]
+	path = power-equalizer
+	url = git@github.com:flowerpowerdao/power-equalizer.git
+	branch = init-args
