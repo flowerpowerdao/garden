@@ -1,0 +1,40 @@
+// Version: 1.0.0
+type Account = {owner : Principal; subaccount : ?Subaccount};
+type Approve =
+  {
+    amount : Int;
+    created_at_time : ?Timestamp;
+    expires_at : ?Nat64;
+    fee : ?Tokens;
+    from : Account;
+    memo : ?Memo;
+    spender : Principal
+  };
+type Memo = Blob;
+type Operation =
+  {
+    #Approve : Approve;
+    #Burn : Transfer;
+    #Mint : Transfer;
+    #Transfer : Transfer
+  };
+type Subaccount = Blob;
+type Timestamp = Nat64;
+type Tokens = Nat;
+type Transaction =
+  {fee : Tokens; operation : Operation; timestamp : Timestamp};
+type Transfer =
+  {
+    amount : Tokens;
+    created_at_time : ?Timestamp;
+    fee : ?Tokens;
+    from : Account;
+    memo : ?Memo;
+    source : TransferSource;
+    spender : Principal;
+    to : Account
+  };
+type TransferSource = {#Icrc1Transfer; #Icrc2TransferFrom; #Init};
+actor {
+  stable var persistedLog : [Transaction]
+};
