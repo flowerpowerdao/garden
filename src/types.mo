@@ -22,7 +22,7 @@ module {
 
   public type Stake = {
     nft : NFT;
-    account : Account;
+    principal : Principal;
     stakedAt : Time.Time;
     lastDisbursedAt : Time.Time;
     period : Time.Time;

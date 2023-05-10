@@ -43,8 +43,11 @@ module {
         // disburse SEED token rewards
         let seedAmount = _getSeedAmountForDuration(Int.min(stakeEndTime, now) - stake.lastDisbursedAt);
         if (seedAmount > 0) {
-          let res = await Actors.seed.icrc1_transfer({
-            to = stake.account;
+          let res = await Actors.SEED.icrc1_transfer({
+            to = {
+              owner = stake.principal;
+              subaccount = null;
+            };
             fee = null;
             memo = null;
             from_subaccount = null;
@@ -54,26 +57,32 @@ module {
 
           switch (res) {
             case (#Ok(index)) {
+              // update last disbursed time
               stakes.put(i, {
                 stake with
                 lastDisbursedAt = now;
               });
 
-              // remove expired stakes
               if (stake.stakedAt + stake.period >= now) {
-                ignore stakes.remove(i);
-
                 // transfer NFT back to the owner
                 let collectionActor = Actors.getActor(stake.nft.collection);
-                await collectionActor.transfer({
-                  subaccount = stake.account.subaccount;
-                  from = #address(AccountId.fromPrincipal(selfId, stake.account.subaccount)); // todo
-                  to = #address(AccountId.fromPrincipal(selfId, stake.account.subaccount)); // todo
-                  token = ExtCore.TokenIdentifier.fromPrincipal(Principal.fromActor(collectionActor), Nat32.fromNat(nft.tokenIndex));
+                let res = await collectionActor.transfer({
+                  subaccount = ?getStakingSubaccount(stake.principal); // from subaccount
+                  from = #address(getStakingAccountId(stake.principal));
+                  to = #address(AccountId.fromPrincipal(stake.principal, null));
+                  token = _nftToTokenId(stake.nft);
                   amount = 1;
                   notify = false;
                   memo = [];
                 });
+
+                // remove expired stake
+                switch (res) {
+                  case (#ok(_)) {
+                    ignore stakes.remove(i);
+                  };
+                  case (#err(_)) {};
+                };
               };
             };
             case (#Err(err)) {};
@@ -91,6 +100,11 @@ module {
       Int.abs(duration) * SEED_REWARD_PER_HOUR / HOUR;
     };
 
+    func _nftToTokenId(nft : Types.NFT) : ExtCore.TokenIdentifier {
+      let collectionActor = Actors.getActor(nft.collection);
+      ExtCore.TokenIdentifier.fromPrincipal(Principal.fromActor(collectionActor), Nat32.fromNat(nft.tokenIndex))
+    };
+
     public func isStaked(nft : Types.NFT) : Bool {
       for (stake in stakes.vals()) {
         if (stake.nft == nft) {
@@ -100,25 +114,30 @@ module {
       return false;
     };
 
-    public func stake(account : Types.Account, nft : Types.NFT, period : Time.Time) : async Result.Result<(), Text.Text> {
+    public func getStakingSubaccount(principal : Principal) : [Nat8] {
+      let principalArr = Blob.toArray(Principal.toBlob(principal));
+      let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else 0);
+      subaccount;
+    };
+
+    public func getStakingAccountId(principal : Principal) : AccountId.AccountIdentifier {
+      let subaccount = getStakingSubaccount(principal);
+      AccountId.fromPrincipal(selfId, ?subaccount);
+    };
+
+    public func stake(principal : Principal, nft : Types.NFT, period : Time.Time) : async Result.Result<(), Text.Text> {
       if (isStaked(nft)) {
         return #err("Flower already staked");
-      };
-      if (account.subaccount != null) {
-        return #err("Subaccounts are not supported");
       };
       if (period < MIN_STAKE_PERIOD) {
         return #err("Minimum stake period is 7 days");
       };
 
-      // TODO: stakingAccount and userAccount
-      let collectionActor = Actors.getActor(nft.collection);
-      let ownerArr = Blob.toArray(Principal.toBlob(account.owner));
-      let subaccount = Array.tabulate<Nat8>(32, func i = if (i < ownerArr.size()) ownerArr[i] else 0);
-      let accountId = AccountId.fromPrincipal(selfId, ?subaccount);
+      let stakingAccountId = getStakingAccountId(principal);
 
       // check if user sent the NFT to the garden
-      let tokens = await collectionActor.tokens(accountId);
+      let collectionActor = Actors.getActor(nft.collection);
+      let tokens = await collectionActor.tokens(stakingAccountId);
 
       switch (tokens) {
         case (#ok(tokens)) {
@@ -133,7 +152,7 @@ module {
           };
 
           stakes.add({
-            account;
+            principal;
             nft;
             stakedAt = Time.now();
             lastDisbursedAt = Time.now();
