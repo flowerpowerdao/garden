@@ -1,5 +1,6 @@
 import Garden "./garden";
+import Types "./types";
 
-actor class(selfId : Principal) {
-  let garden = Garden.Garden(selfId);
+actor class(selfId : Principal, initArgs : Types.InitArgs) {
+  let garden = Garden.Garden(selfId, initArgs);
 };

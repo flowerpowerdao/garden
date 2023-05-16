@@ -1,14 +1,14 @@
 {
   "version": 1,
   "canisters": {
-    "a_backend": {
+    "main": {
       "type": "motoko",
       "main": "src/main.mo"
     }
   },
   "defaults": {
     "build": {
-      "packtool": "npm run sources:test --silent",
+      "packtool": "mops sources",
       "args": ""
     }
   },

@@ -1,0 +1,7 @@
+(
+  principal "",
+  record {
+    seedRewardPerHour = 1_000_000;
+    minStakePeriod = variant { days = 7 };
+  }
+)

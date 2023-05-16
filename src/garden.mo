@@ -15,17 +15,15 @@ import Types "./types";
 import Actors "./actors";
 import AccountId "./account-id";
 import ExtCore "./toniq-labs/ext/Core";
+import Utils "utils";
 
 module {
 
-  public class Garden(selfId : Principal) {
+  public class Garden(selfId : Principal, initArgs : Types.InitArgs) {
     let stakes : Buffer.Buffer<Types.Stake> = Buffer.Buffer<Types.Stake>(0);
 
     let SECOND = 1_000_000_000;
     let HOUR = SECOND * 60 * 60;
-
-    let SEED_REWARD_PER_HOUR = 1_000_000;
-    let MIN_STAKE_PERIOD = HOUR * 24 * 7;
 
     public func setTimers() {
       ignore Timer.recurringTimer(#seconds(60 * 60), func() : async () {
@@ -97,7 +95,7 @@ module {
       if (duration <= 0) {
         return 0;
       };
-      Int.abs(duration) * SEED_REWARD_PER_HOUR / HOUR;
+      Int.abs(duration) * initArgs.seedRewardPerHour / HOUR;
     };
 
     func _nftToTokenId(nft : Types.NFT) : ExtCore.TokenIdentifier {
@@ -129,8 +127,8 @@ module {
       if (isStaked(nft)) {
         return #err("Flower already staked");
       };
-      if (period < MIN_STAKE_PERIOD) {
-        return #err("Minimum stake period is 7 days");
+      if (period < Utils.toNanos(initArgs.minStakePeriod)) {
+        return #err("Minimum stake period is " # debug_show(initArgs.minStakePeriod));
       };
 
       let stakingAccountId = getStakingAccountId(principal);

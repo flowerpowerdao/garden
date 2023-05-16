@@ -2,6 +2,7 @@
   "scripts": {
     "start": "npm run replica && npm run deploy",
     "replica": "dfx stop && dfx start --clean --background",
+    "deploy": "dfx deploy --argument \"$(cat initArgs.did)\"",
     "sources:test": "MOPS_ENV=test mops sources"
   }
 }

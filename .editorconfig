@@ -1,6 +1,6 @@
 root = true
 
-[*.mo]
+[*.{mo,did}]
 indent_style = space
 indent_size = 2
 end_of_line = lf

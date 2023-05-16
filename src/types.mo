@@ -27,4 +27,17 @@ module {
     lastDisbursedAt : Time.Time;
     period : Time.Time;
   };
+
+  public type Duration = {
+    #nanoseconds : Nat;
+    #seconds : Nat;
+    #minutes : Nat;
+    #hours : Nat;
+    #days : Nat;
+  };
+
+  public type InitArgs = {
+    seedRewardPerHour : Nat;
+    minStakePeriod : Duration;
+  };
 };
