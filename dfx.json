@@ -4,6 +4,26 @@
     "main": {
       "type": "motoko",
       "main": "src/main.mo"
+    },
+    "seed": {
+      "type": "custom",
+      "wasm": "icrc1/icrc1.wasm",
+      "candid": "icrc1/icrc1.did"
+    },
+    "btcflower": {
+      "type": "custom",
+      "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
+      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did"
+    },
+    "ethflower": {
+      "type": "custom",
+      "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
+      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did"
+    },
+    "icpflower": {
+      "type": "custom",
+      "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
+      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did"
     }
   },
   "defaults": {
