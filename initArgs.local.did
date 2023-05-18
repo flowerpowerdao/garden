@@ -1,0 +1,8 @@
+(
+  principal "2222s-4iaaa-aaaaf-ax2uq-cai",
+  record {
+    seedRewardPerHour = 1_000_000;
+    minStakePeriod = variant { seconds = 15 };
+    disbursementInterval = variant { seconds = 5 };
+  }
+)

@@ -3,12 +3,16 @@
   "canisters": {
     "main": {
       "type": "motoko",
-      "main": "src/main.mo"
+      "main": "src/main.mo",
+      "declarations": {
+        "node_compatibility": true,
+        "output": "declarations/main"
+      }
     },
     "seed": {
       "type": "custom",
-      "wasm": "icrc1/icrc1.wasm",
-      "candid": "icrc1/icrc1.did"
+      "wasm": "declarations/icrc1/icrc1.wasm",
+      "candid": "declarations/icrc1/icrc1.did"
     },
     "btcflower": {
       "type": "custom",

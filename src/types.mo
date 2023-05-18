@@ -39,5 +39,6 @@ module {
   public type InitArgs = {
     seedRewardPerHour : Nat;
     minStakePeriod : Duration;
+    disbursementInterval : Duration;
   };
 };

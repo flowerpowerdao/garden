@@ -1,0 +1,19 @@
+type anon_class_5_1 = 
+ service {
+   getStakingAccountId: (principal) -> (AccountIdentifier);
+ };
+type InitArgs = 
+ record {
+   minStakePeriod: Duration;
+   seedRewardPerHour: nat;
+ };
+type Duration = 
+ variant {
+   days: nat;
+   hours: nat;
+   minutes: nat;
+   nanoseconds: nat;
+   seconds: nat;
+ };
+type AccountIdentifier = text;
+service : (principal, InitArgs) -> anon_class_5_1

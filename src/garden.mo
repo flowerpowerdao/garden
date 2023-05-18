@@ -18,7 +18,6 @@ import ExtCore "./toniq-labs/ext/Core";
 import Utils "utils";
 
 module {
-
   public class Garden(selfId : Principal, initArgs : Types.InitArgs) {
     let stakes : Buffer.Buffer<Types.Stake> = Buffer.Buffer<Types.Stake>(0);
 
@@ -26,21 +25,25 @@ module {
     let HOUR = SECOND * 60 * 60;
 
     public func setTimers() {
-      ignore Timer.recurringTimer(#seconds(60 * 60), func() : async () {
-        ignore tick();
+      ignore Timer.recurringTimer(#nanoseconds(Utils.toNanos(initArgs.disbursementInterval)), func() : async () {
+        ignore _tick();
       });
     };
 
-    public func tick() : async () {
+    func _tick() : async () {
       let now = Time.now();
 
       var i = 0;
       for (stake in stakes.vals()) {
         let stakeEndTime = stake.stakedAt + stake.period;
 
-        // disburse SEED token rewards
+
         let seedAmount = _getSeedAmountForDuration(Int.min(stakeEndTime, now) - stake.lastDisbursedAt);
+
+        var disbursed = seedAmount == 0;
+
         if (seedAmount > 0) {
+          // disburse SEED token rewards
           let res = await Actors.SEED.icrc1_transfer({
             to = {
               owner = stake.principal;
@@ -61,29 +64,31 @@ module {
                 lastDisbursedAt = now;
               });
 
-              if (stake.stakedAt + stake.period >= now) {
-                // transfer NFT back to the owner
-                let collectionActor = Actors.getActor(stake.nft.collection);
-                let res = await collectionActor.transfer({
-                  subaccount = ?getStakingSubaccount(stake.principal); // from subaccount
-                  from = #address(getStakingAccountId(stake.principal));
-                  to = #address(AccountId.fromPrincipal(stake.principal, null));
-                  token = _nftToTokenId(stake.nft);
-                  amount = 1;
-                  notify = false;
-                  memo = [];
-                });
-
-                // remove expired stake
-                switch (res) {
-                  case (#ok(_)) {
-                    ignore stakes.remove(i);
-                  };
-                  case (#err(_)) {};
-                };
-              };
+              disbursed := true;
             };
             case (#Err(err)) {};
+          };
+        };
+
+        if (disbursed and stake.stakedAt + stake.period >= now) {
+          // transfer NFT back to the owner
+          let collectionActor = Actors.getActor(stake.nft.collection);
+          let res = await collectionActor.transfer({
+            subaccount = ?getStakingSubaccount(stake.principal); // from subaccount
+            from = #address(getStakingAccountId(stake.principal));
+            to = #address(AccountId.fromPrincipal(stake.principal, null));
+            token = _nftToTokenId(stake.nft);
+            amount = 1;
+            notify = false;
+            memo = [];
+          });
+
+          // remove expired stake
+          switch (res) {
+            case (#ok(_)) {
+              ignore stakes.remove(i);
+            };
+            case (#err(_)) {};
           };
         };
 
@@ -112,7 +117,7 @@ module {
       return false;
     };
 
-    public func getStakingSubaccount(principal : Principal) : [Nat8] {
+    func getStakingSubaccount(principal : Principal) : [Nat8] {
       let principalArr = Blob.toArray(Principal.toBlob(principal));
       let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else 0);
       subaccount;

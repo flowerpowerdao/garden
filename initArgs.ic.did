@@ -1,7 +1,8 @@
 (
-  principal "2222s-4iaaa-aaaaf-ax2uq-cai",
+  principal "",
   record {
     seedRewardPerHour = 1_000_000;
     minStakePeriod = variant { days = 7 };
+    disbursementInterval = variant { hours = 24 };
   }
 )

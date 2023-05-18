@@ -1,23 +1,32 @@
 {
   "scripts": {
-    "start": "npm run replica && npm run deploy",
+    "start": "npm run replica && npm run create-canisters && npm run deploy",
     "replica": "dfx stop && dfx start --clean --background",
-
+    "build-power-equalizer": "cd power-equalizer && dfx build staging --check",
     "create-canisters": "npm run create:main && npm run create:seed && npm run create:btcflower && npm run create:ethflower && npm run create:icpflower",
     "create:main": "dfx canister create main --specified-id 2222s-4iaaa-aaaaf-ax2uq-cai",
     "create:seed": "dfx canister create seed --specified-id zzzzp-iiaaa-aaaaf-a5hga-cai",
     "create:btcflower": "dfx canister create btcflower --specified-id pk6rk-6aaaa-aaaae-qaazq-cai",
     "create:ethflower": "dfx canister create ethflower --specified-id dhiaa-ryaaa-aaaae-qabva-cai",
     "create:icpflower": "dfx canister create icpflower --specified-id 4ggk4-mqaaa-aaaae-qad6q-cai",
-
     "deploy": "npm run build-power-equalizer && npm run deploy:main && npm run deploy:seed && npm run deploy:btcflower && npm run deploy:ethflower && npm run deploy:icpflower",
-    "deploy:main": "dfx deploy main --argument \"$(cat initArgs.did)\"",
+    "deploy:main": "dfx deploy main --argument \"$(cat initArgs.local.did)\"",
     "deploy:seed": "dfx deploy seed --argument \"$(cat icrc1/initArgs.did)\"",
     "deploy:btcflower": "dfx deploy btcflower --argument \"$(cat power-equalizer/initArgs.did)\"",
     "deploy:ethflower": "dfx deploy ethflower --argument \"$(cat power-equalizer/initArgs.did)\"",
     "deploy:icpflower": "dfx deploy icpflower --argument \"$(cat power-equalizer/initArgs.did)\"",
-    "build-power-equalizer": "cd power-equalizer && dfx build staging --check",
-
-    "sources:test": "MOPS_ENV=test mops sources"
+    "deploy-ic": "dfx deploy main --argument \"$(cat initArgs.ic.did)\"",
+    "test": "vitest --threads false"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^0.15.6",
+    "@dfinity/candid": "^0.15.6",
+    "@dfinity/identity": "^0.15.6",
+    "@dfinity/identity-secp256k1": "^0.15.6",
+    "@dfinity/nns": "^0.15.1",
+    "@types/node": "^20.1.7",
+    "tsx": "^3.12.7",
+    "typescript": "^5.0.4",
+    "vitest": "^0.31.0"
   }
 }
