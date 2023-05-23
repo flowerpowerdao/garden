@@ -10,22 +10,24 @@ import Result "mo:base/Result";
 import Nat32 "mo:base/Nat32";
 import Timer "mo:base/Timer";
 import Int "mo:base/Int";
+import Nat "mo:base/Nat";
 
 import Types "./types";
 import Actors "./actors";
 import AccountId "./account-id";
 import ExtCore "./toniq-labs/ext/Core";
-import Utils "utils";
+import Utils "./utils";
 
 module {
   public class Garden(selfId : Principal, initArgs : Types.InitArgs) {
-    let stakes : Buffer.Buffer<Types.Stake> = Buffer.Buffer<Types.Stake>(0);
+    let neurons = TrieMap.TrieMap<Types.NeuronId, Types.Neuron>(Nat.equal, Nat.hash);
+    var curNeuronId = 0;
 
     let SECOND = 1_000_000_000;
     let HOUR = SECOND * 60 * 60;
 
     public func setTimers() {
-      ignore Timer.recurringTimer(#nanoseconds(Utils.toNanos(initArgs.disbursementInterval)), func() : async () {
+      ignore Timer.recurringTimer(#nanoseconds(Utils.toNanos(initArgs.rewardInterval)), func() : async () {
         ignore _tick();
       });
     };
@@ -33,66 +35,10 @@ module {
     func _tick() : async () {
       let now = Time.now();
 
-      var i = 0;
-      for (stake in stakes.vals()) {
+      for (stake in neurons.vals()) {
         let stakeEndTime = stake.stakedAt + stake.period;
 
-
         let seedAmount = _getSeedAmountForDuration(Int.min(stakeEndTime, now) - stake.lastDisbursedAt);
-
-        var disbursed = seedAmount == 0;
-
-        if (seedAmount > 0) {
-          // disburse SEED token rewards
-          let res = await Actors.SEED.icrc1_transfer({
-            to = {
-              owner = stake.principal;
-              subaccount = null;
-            };
-            fee = null;
-            memo = null;
-            from_subaccount = null;
-            created_at_time = null;
-            amount = seedAmount;
-          });
-
-          switch (res) {
-            case (#Ok(index)) {
-              // update last disbursed time
-              stakes.put(i, {
-                stake with
-                lastDisbursedAt = now;
-              });
-
-              disbursed := true;
-            };
-            case (#Err(err)) {};
-          };
-        };
-
-        if (disbursed and stake.stakedAt + stake.period >= now) {
-          // transfer NFT back to the owner
-          let collectionActor = Actors.getActor(stake.nft.collection);
-          let res = await collectionActor.transfer({
-            subaccount = ?getStakingSubaccount(stake.principal); // from subaccount
-            from = #address(getStakingAccountId(stake.principal));
-            to = #address(AccountId.fromPrincipal(stake.principal, null));
-            token = _nftToTokenId(stake.nft);
-            amount = 1;
-            notify = false;
-            memo = [];
-          });
-
-          // remove expired stake
-          switch (res) {
-            case (#ok(_)) {
-              ignore stakes.remove(i);
-            };
-            case (#err(_)) {};
-          };
-        };
-
-        i += 1;
       };
     };
 
@@ -103,13 +49,8 @@ module {
       Int.abs(duration) * initArgs.seedRewardPerHour / HOUR;
     };
 
-    func _nftToTokenId(nft : Types.NFT) : ExtCore.TokenIdentifier {
-      let collectionActor = Actors.getActor(nft.collection);
-      ExtCore.TokenIdentifier.fromPrincipal(Principal.fromActor(collectionActor), Nat32.fromNat(nft.tokenIndex))
-    };
-
-    public func isStaked(nft : Types.NFT) : Bool {
-      for (stake in stakes.vals()) {
+    public func isStaked(nft : Types.Flower) : Bool {
+      for (stake in neurons.vals()) {
         if (stake.nft == nft) {
           return true;
         };
@@ -117,57 +58,156 @@ module {
       return false;
     };
 
-    func getStakingSubaccount(principal : Principal) : [Nat8] {
+    public func getStakingAccountId(userId : Principal) : AccountId.AccountIdentifier {
+      let subaccount = _getStakingSubaccount(userId, 0);
+      AccountId.fromPrincipal(selfId, ?subaccount);
+    };
+
+    //////////////////////////////////////////
+    //////////////////////////////////////////
+    //////////////////////////////////////////
+
+    public func getStakingAccount(userId : Principal, nonce : Nat32) : Types.Account {
+      {
+        owner = selfId;
+        subaccount = ?_getStakingSubaccount(userId, nonce);
+      }
+    };
+
+    public func stake(userId : Principal, nonce : Nat32) : async Result.Result<Types.NeuronId, Text.Text> {
+      let stakingAccount = getStakingAccount(userId, nonce);
+      let flowers = await _getFlowersOnAccount(stakingAccount);
+
+      curNeuronId += 1;
+
+      neurons.put(curNeuronId, {
+        id = curNeuronId;
+        userId;
+        stakingAccount;
+        flowers;
+        createdAt = Time.now();
+        lastDisbursedAt = Time.now();
+        dissolveDelay = Utils.toNanos(initArgs.stakePeriod);
+        dissolving = false;
+        rewards = 0;
+        totalRewards = 0;
+      });
+
+      #ok(curNeuronId);
+    };
+
+    public func claimRewards(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
+      switch (neurons.get(neuronId)) {
+        case (?neuron) {
+          let res = await Actors.SEED.icrc1_transfer({
+            to = toAccount;
+            fee = null;
+            memo = null;
+            from_subaccount = null;
+            created_at_time = null;
+            amount = neuron.rewards;
+          });
+
+          switch (res) {
+            case (#Ok(index)) {
+              neurons.put(neuronId, {
+                neuron with
+                amount = 0;
+                lastDisbursedAt = Time.now();
+              });
+              #ok;
+            };
+            case (#Err(err)) {
+              #err(debug_show(err));
+            };
+          };
+        };
+        case (null) {
+          #err("neuron not found");
+        };
+      };
+    };
+
+    // withdraw flowers and remove neuron
+    public func dissolveNeuron(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
+      switch (neurons.get(neuronId)) {
+        case (?neuron) {
+          for (flower in neuron.flowers.vals()) {
+            let collectionActor = Actors.getActor(flower.collection);
+            let res = await collectionActor.transfer({
+              subaccount = neuron.stakingAccount.subaccount; // from subaccount
+              from = #address(_accountToAccountId(neuron.stakingAccount));
+              to = #address(_accountToAccountId(toAccount));
+              token = _nftToTokenId(flower);
+              amount = 1;
+              notify = false;
+              memo = [];
+            });
+
+            switch (res) {
+              case (#ok(_)) {
+                // remove flower from neuron
+                neurons.put(neuronId, {
+                  neuron with
+                  amount = 0;
+                  lastDisbursedAt = Time.now();
+                });
+              };
+              case (#err(err)) {
+                return #err(debug_show(err));
+              };
+            };
+          };
+
+          #ok;
+        };
+        case (null) {
+          #err("neuron not found");
+        };
+      };
+    };
+
+    // TODO: use nonce
+    func _getStakingSubaccount(principal : Principal, nonce : Nat32) : [Nat8] {
       let principalArr = Blob.toArray(Principal.toBlob(principal));
       let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else 0);
       subaccount;
     };
 
-    public func getStakingAccountId(principal : Principal) : AccountId.AccountIdentifier {
-      let subaccount = getStakingSubaccount(principal);
-      AccountId.fromPrincipal(selfId, ?subaccount);
+    func _accountToAccountId(account : Types.Account) : AccountId.AccountIdentifier {
+      AccountId.fromPrincipal(account.owner, account.subaccount);
     };
 
-    public func stake(principal : Principal, nft : Types.NFT, period : Time.Time) : async Result.Result<(), Text.Text> {
-      if (isStaked(nft)) {
-        return #err("Flower already staked");
-      };
-      if (period < Utils.toNanos(initArgs.minStakePeriod)) {
-        return #err("Minimum stake period is " # debug_show(initArgs.minStakePeriod));
-      };
-
-      let stakingAccountId = getStakingAccountId(principal);
-
-      // check if user sent the NFT to the garden
+    func _nftToTokenId(nft : Types.Flower) : ExtCore.TokenIdentifier {
       let collectionActor = Actors.getActor(nft.collection);
-      let tokens = await collectionActor.tokens(stakingAccountId);
+      ExtCore.TokenIdentifier.fromPrincipal(Principal.fromActor(collectionActor), Nat32.fromNat(nft.tokenIndex))
+    };
 
-      switch (tokens) {
-        case (#ok(tokens)) {
-          var hasToken = false;
-          for (tokenIndex in tokens.vals()) {
-            if (Nat32.toNat(tokenIndex) == nft.tokenIndex) {
-              hasToken := true;
+    func _getFlowersOnAccount(account : Types.Account) : async [Types.Flower] {
+      let accountId = AccountId.fromPrincipal(account.owner, account.subaccount);
+      let collections = [#BTCFlower, #ETHFlower, #ICPFlower];
+      let flowers = Buffer.Buffer<Types.Flower>(0);
+
+      for (collection in collections.vals()) {
+        let collectionActor = Actors.getActor(collection);
+        let tokens = await collectionActor.tokens(accountId);
+
+        switch (tokens) {
+          case (#ok(tokens)) {
+            for (tokenIndex in tokens.vals()) {
+              flowers.add({
+                collection;
+                tokenIndex = Nat32.toNat(tokenIndex);
+              });
             };
           };
-          if (not hasToken) {
-            return #err("Flower not found in the garden");
+          case (#err(err)) {
+            return Debug.trap("Failed to get tokens for collection " # debug_show(collection) # ": " # debug_show(err));
           };
-
-          stakes.add({
-            principal;
-            nft;
-            stakedAt = Time.now();
-            lastDisbursedAt = Time.now();
-            period;
-          });
-
-          #ok;
-        };
-        case (#err(err)) {
-          return #err(debug_show(err));
         };
       };
+
+      Buffer.toArray(flowers);
     };
   };
 };

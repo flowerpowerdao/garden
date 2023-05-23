@@ -1,8 +1,8 @@
 (
   principal "",
   record {
-    seedRewardPerHour = 1_000_000;
-    minStakePeriod = variant { days = 7 };
-    disbursementInterval = variant { hours = 24 };
+    totalRewardsPerYear = 1_000_000;
+    stakePeriod = variant { days = 30 };
+    rewardInterval = variant { hours = 24 };
   }
 )

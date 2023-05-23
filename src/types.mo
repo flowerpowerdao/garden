@@ -6,6 +6,7 @@ module {
     subaccount : ?[Nat8];
   };
 
+  public type NeuronId = Nat;
   public type AccountId = Text;
   public type TokenIndex = Nat;
 
@@ -15,17 +16,22 @@ module {
     #ICPFlower;
   };
 
-  public type NFT = {
+  public type Flower = {
     collection : Collection;
     tokenIndex : TokenIndex;
   };
 
-  public type Stake = {
-    nft : NFT;
-    principal : Principal;
-    stakedAt : Time.Time;
+  public type Neuron = {
+    id : Nat;
+    userId : Principal;
+    stakingAccount : Account;
+    createdAt : Time.Time;
+    dissolveDelay : Time.Time;
+    dissolving : Bool;
+    flowers : [Flower];
+    rewards : Nat; // current rewards balance available for disbursal
+    totalRewards : Nat;
     lastDisbursedAt : Time.Time;
-    period : Time.Time;
   };
 
   public type Duration = {
@@ -37,8 +43,8 @@ module {
   };
 
   public type InitArgs = {
-    seedRewardPerHour : Nat;
-    minStakePeriod : Duration;
-    disbursementInterval : Duration;
+    totalRewardsPerYear : Nat;
+    stakePeriod : Duration;
+    rewardInterval : Duration;
   };
 };
