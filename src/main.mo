@@ -8,15 +8,11 @@ import AccountId "./account-id";
 actor class(selfId : Principal, initArgs : Types.InitArgs) {
   let garden = Garden.Garden(selfId, initArgs);
 
-  public func getStakingAccountId(principal : Principal) : async AccountId.AccountIdentifier {
-    garden.getStakingAccountId(principal);
+  public shared ({caller}) func getStakingAccount(nonce : Nat32) : async Types.Account {
+    garden.getStakingAccount(caller, nonce);
   };
 
-  public func stake(principal : Principal, nft : Types.NFT, period : Time.Time) : async Result.Result<(), Text> {
-    await garden.stake(principal, nft, period);
-  };
-
-  public func isStaked(nft : Types.NFT) : async Bool {
-    garden.isStaked(nft);
+  public shared ({caller}) func stake(nonce : Nat32) : async Result.Result<Types.NeuronId, Text> {
+    await garden.stake(caller, nonce);
   };
 };

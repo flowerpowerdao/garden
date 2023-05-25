@@ -11,6 +11,7 @@ import Nat32 "mo:base/Nat32";
 import Timer "mo:base/Timer";
 import Int "mo:base/Int";
 import Nat "mo:base/Nat";
+import {DAY} "mo:time-consts";
 
 import Types "./types";
 import Actors "./actors";
@@ -20,52 +21,78 @@ import Utils "./utils";
 
 module {
   public class Garden(selfId : Principal, initArgs : Types.InitArgs) {
-    let neurons = TrieMap.TrieMap<Types.NeuronId, Types.Neuron>(Nat.equal, Nat.hash);
+    let neurons = TrieMap.TrieMap<Types.NeuronId, Types.Neuron>(Nat.equal, func(x) = Text.hash(Nat.toText(x)));
+    let neuronsByUser = TrieMap.TrieMap<Principal, Buffer.Buffer<Types.NeuronId>>(Principal.equal, Principal.hash);
     var curNeuronId = 0;
+    var prevRewardTime = Time.now();
 
-    let SECOND = 1_000_000_000;
-    let HOUR = SECOND * 60 * 60;
+    let YEAR = DAY * 365;
+    let BIG_NUMBER = 1_000_000_000_000_000_000_000;
 
     public func setTimers() {
       ignore Timer.recurringTimer(#nanoseconds(Utils.toNanos(initArgs.rewardInterval)), func() : async () {
-        ignore _tick();
+        ignore _mintRerwards();
       });
     };
 
-    func _tick() : async () {
+    func _mintRerwards() : async () {
       let now = Time.now();
+      let totalVotingPower = getTotalVotingPower();
+      let elapsedTime = Int.abs(now - prevRewardTime);
+      let rewardsForElapsedTime = BIG_NUMBER * initArgs.totalRewardsPerYear / YEAR * elapsedTime / BIG_NUMBER;
 
-      for (stake in neurons.vals()) {
-        let stakeEndTime = stake.stakedAt + stake.period;
+      for (neuron in neurons.vals()) {
+        let votingPower = getNeuronVotingPower(neuron.id);
+        let rewards = BIG_NUMBER * votingPower / totalVotingPower * rewardsForElapsedTime / BIG_NUMBER;
 
-        let seedAmount = _getSeedAmountForDuration(Int.min(stakeEndTime, now) - stake.lastDisbursedAt);
+        // add rewards to neuron
+        neurons.put(neuron.id, {
+          neuron with
+          rewards = neuron.rewards + rewards;
+          totalRewards = neuron.totalRewards + rewards;
+        });
+      };
+
+      prevRewardTime := now;
+    };
+
+    public func getTotalVotingPower() : Nat {
+      var votingPower = 0;
+      for (neuronId in neurons.keys()) {
+        votingPower += getNeuronVotingPower(neuronId);
+      };
+      votingPower;
+    };
+
+    public func getUserVotingPower(userId : Principal) : Nat {
+      let ?neuronIds = neuronsByUser.get(userId) else return 0;
+      var votingPower = 0;
+
+      for (neuronId in neuronIds.vals()) {
+        votingPower += getNeuronVotingPower(neuronId);
+      };
+
+      votingPower;
+    };
+
+    public func getNeuronVotingPower(neuronId : Types.NeuronId) : Nat {
+      let ?neuron = neurons.get(neuronId) else Debug.trap("neuron not found");
+      var votingPower = 0;
+
+      for (flower in neuron.flowers.vals()) {
+        votingPower += getFlowerVotingPower(flower);
+      };
+
+      votingPower;
+    };
+
+    public func getFlowerVotingPower(flower : Types.Flower) : Nat {
+      switch (flower.collection) {
+        case (#BTCFlower) 2;
+        case (#ETHFlower) 1;
+        case (#ICPFlower) 1;
       };
     };
-
-    func _getSeedAmountForDuration(duration : Time.Time) : Nat {
-      if (duration <= 0) {
-        return 0;
-      };
-      Int.abs(duration) * initArgs.seedRewardPerHour / HOUR;
-    };
-
-    public func isStaked(nft : Types.Flower) : Bool {
-      for (stake in neurons.vals()) {
-        if (stake.nft == nft) {
-          return true;
-        };
-      };
-      return false;
-    };
-
-    public func getStakingAccountId(userId : Principal) : AccountId.AccountIdentifier {
-      let subaccount = _getStakingSubaccount(userId, 0);
-      AccountId.fromPrincipal(selfId, ?subaccount);
-    };
-
-    //////////////////////////////////////////
-    //////////////////////////////////////////
-    //////////////////////////////////////////
 
     public func getStakingAccount(userId : Principal, nonce : Nat32) : Types.Account {
       {
@@ -93,12 +120,28 @@ module {
         totalRewards = 0;
       });
 
+      let neuronIds = switch (neuronsByUser.get(userId)) {
+        case (?neuronIds) {
+          neuronIds;
+        };
+        case (null) {
+          let neuronIds = Buffer.Buffer<Types.NeuronId>(0);
+          neuronsByUser.put(userId, neuronIds);
+          neuronIds;
+        };
+      };
+      neuronIds.add(curNeuronId);
+
       #ok(curNeuronId);
     };
 
     public func claimRewards(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
       switch (neurons.get(neuronId)) {
         case (?neuron) {
+          if (neuron.rewards == 0) {
+            return #ok;
+          };
+
           let res = await Actors.SEED.icrc1_transfer({
             to = toAccount;
             fee = null;
@@ -133,6 +176,7 @@ module {
       switch (neurons.get(neuronId)) {
         case (?neuron) {
           for (flower in neuron.flowers.vals()) {
+            // transfer flower to user
             let collectionActor = Actors.getActor(flower.collection);
             let res = await collectionActor.transfer({
               subaccount = neuron.stakingAccount.subaccount; // from subaccount
@@ -149,14 +193,23 @@ module {
                 // remove flower from neuron
                 neurons.put(neuronId, {
                   neuron with
-                  amount = 0;
-                  lastDisbursedAt = Time.now();
+                  flowers = Array.filter<Types.Flower>(neuron.flowers, func(f) = f != flower);
                 });
               };
               case (#err(err)) {
                 return #err(debug_show(err));
               };
             };
+          };
+
+          // delete neuron
+          neurons.delete(neuronId);
+
+          switch (neuronsByUser.get(userId)) {
+            case (?neuronIds) {
+              neuronIds.filterEntries(func(i, nid) = nid != neuronId);
+            };
+            case (null) {};
           };
 
           #ok;

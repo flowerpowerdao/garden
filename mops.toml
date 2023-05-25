@@ -1,7 +1,7 @@
 [dependencies]
 base = "0.8.7"
-icrc1 = "0.0.1"
 encoding = "https://github.com/aviate-labs/encoding.mo#v0.4.1"
+time-consts = "1.0.1"
 
 [dev-dependencies]
 test = "1.0.1"
