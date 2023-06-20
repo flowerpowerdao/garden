@@ -31,29 +31,57 @@ module {
 
     public func setTimers() {
       ignore Timer.recurringTimer(#nanoseconds(Utils.toNanos(initArgs.rewardInterval)), func() : async () {
-        ignore _mintRerwards();
+        ignore _mintRewards();
       });
     };
 
-    func _mintRerwards() : async () {
+    func _mintRewards() : async () {
       let now = Time.now();
       let totalVotingPower = getTotalVotingPower();
       let elapsedTime = Int.abs(now - prevRewardTime);
       let rewardsForElapsedTime = BIG_NUMBER * initArgs.totalRewardsPerYear / YEAR * elapsedTime / BIG_NUMBER;
 
       for (neuron in neurons.vals()) {
-        let votingPower = getNeuronVotingPower(neuron.id);
-        let rewards = BIG_NUMBER * votingPower / totalVotingPower * rewardsForElapsedTime / BIG_NUMBER;
+        switch (neuron.dissolveState) {
+          // not dissolving
+          case (#DissolveDelay(_)) {
+            let votingPower = getNeuronVotingPower(neuron.id);
+            let rewards = BIG_NUMBER * votingPower / totalVotingPower * rewardsForElapsedTime / BIG_NUMBER;
 
-        // add rewards to neuron
-        neurons.put(neuron.id, {
-          neuron with
-          rewards = neuron.rewards + rewards;
-          totalRewards = neuron.totalRewards + rewards;
-        });
+            // add rewards to neuron
+            neurons.put(neuron.id, {
+              neuron with
+              rewards = neuron.rewards + rewards;
+              totalRewards = neuron.totalRewards + rewards;
+            });
+          };
+          // dissolving
+          case (#DissolveTimestamp(_)) {};
+        };
       };
 
       prevRewardTime := now;
+    };
+
+    public func getUserNeurons(userId : Principal) : [Types.Neuron] {
+      let ?neuronIds = neuronsByUser.get(userId) else return [];
+
+      let userNeurons = Buffer.map<Types.NeuronId, Types.Neuron>(neuronIds, func(neuronId) {
+        let ?neuron = neurons.get(neuronId) else Debug.trap("neuron not found");
+        neuron;
+      });
+
+      Buffer.toArray(userNeurons);
+    };
+
+    public func isNeuronOwner(userId : Principal, neuronId : Types.NeuronId) : Bool {
+      let userNeurons = getUserNeurons(userId);
+      for (neuron in userNeurons.vals()) {
+        if (neuron.id == neuronId) {
+          return true;
+        };
+      };
+      false;
     };
 
     public func getTotalVotingPower() : Nat {
@@ -94,14 +122,14 @@ module {
       };
     };
 
-    public func getStakingAccount(userId : Principal, nonce : Nat32) : Types.Account {
+    public func getStakingAccount(userId : Principal, nonce : Nat16) : Types.Account {
       {
         owner = selfId;
         subaccount = ?_getStakingSubaccount(userId, nonce);
       }
     };
 
-    public func stake(userId : Principal, nonce : Nat32) : async Result.Result<Types.NeuronId, Text.Text> {
+    public func stake(userId : Principal, nonce : Nat16) : async Result.Result<Types.NeuronId, Text.Text> {
       let stakingAccount = getStakingAccount(userId, nonce);
       let flowers = await _getFlowersOnAccount(stakingAccount);
 
@@ -113,9 +141,7 @@ module {
         stakingAccount;
         flowers;
         createdAt = Time.now();
-        lastDisbursedAt = Time.now();
-        dissolveDelay = Utils.toNanos(initArgs.stakePeriod);
-        dissolving = false;
+        dissolveState = #DissolveDelay(Utils.toNanos(initArgs.stakePeriod));
         rewards = 0;
         totalRewards = 0;
       });
@@ -156,7 +182,7 @@ module {
               neurons.put(neuronId, {
                 neuron with
                 amount = 0;
-                lastDisbursedAt = Time.now();
+                lastWithdrwanAt = Time.now();
               });
               #ok;
             };
@@ -171,10 +197,33 @@ module {
       };
     };
 
+    public func startDissolving(userId : Principal, neuronId : Types.NeuronId) : Result.Result<(), Text.Text> {
+      assert(isNeuronOwner(userId, neuronId));
+
+      let ?neuron = neurons.get(neuronId) else Debug.trap("neuron not found");
+
+      switch (neuron.dissolveState) {
+        case (#DissolveDelay(dissolveDelay)) {
+          neurons.put(neuronId, {
+            neuron with
+            dissolveState = #DissolveTimestamp(Time.now() + dissolveDelay);
+          });
+          #ok;
+        };
+        case (#DissolveTimestamp(_)) {
+          #err("neuron is already dissolving");
+        };
+      };
+    };
+
+    // todo: restake (stop dissolving and restake)
+
     // withdraw flowers and remove neuron
+    // todo: seed tokens
     public func dissolveNeuron(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
       switch (neurons.get(neuronId)) {
         case (?neuron) {
+          // withdraw all flowers
           for (flower in neuron.flowers.vals()) {
             // transfer flower to user
             let collectionActor = Actors.getActor(flower.collection);
@@ -187,7 +236,6 @@ module {
               notify = false;
               memo = [];
             });
-
             switch (res) {
               case (#ok(_)) {
                 // remove flower from neuron
@@ -205,6 +253,7 @@ module {
           // delete neuron
           neurons.delete(neuronId);
 
+          // remove neuron from neuronsByUser
           switch (neuronsByUser.get(userId)) {
             case (?neuronIds) {
               neuronIds.filterEntries(func(i, nid) = nid != neuronId);
@@ -221,7 +270,7 @@ module {
     };
 
     // TODO: use nonce
-    func _getStakingSubaccount(principal : Principal, nonce : Nat32) : [Nat8] {
+    func _getStakingSubaccount(principal : Principal, nonce : Nat16) : [Nat8] {
       let principalArr = Blob.toArray(Principal.toBlob(principal));
       let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else 0);
       subaccount;

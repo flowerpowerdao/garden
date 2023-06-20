@@ -21,17 +21,20 @@ module {
     tokenIndex : TokenIndex;
   };
 
+  public type DissolveState = {
+    #DissolveDelay : Time.Time; // not dissolving
+    #DissolveTimestamp : Time.Time; // dissolving, in this timestamp user can dissolve neuron and withdraw flowers
+  };
+
   public type Neuron = {
     id : Nat;
     userId : Principal;
     stakingAccount : Account;
     createdAt : Time.Time;
-    dissolveDelay : Time.Time;
-    dissolving : Bool;
+    dissolveState : DissolveState;
     flowers : [Flower];
-    rewards : Nat; // current rewards balance available for disbursal
+    rewards : Nat; // current rewards balance available for withdrawal
     totalRewards : Nat;
-    lastDisbursedAt : Time.Time;
   };
 
   public type Duration = {

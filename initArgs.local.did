@@ -1,7 +1,7 @@
 (
   principal "2222s-4iaaa-aaaaf-ax2uq-cai",
   record {
-    totalRewardsPerYear = 1_000_000_000;
+    totalRewardsPerYear = 1_000_000_00000000; // 1_000_000 SEED
     stakePeriod = variant { seconds = 15 };
     rewardInterval = variant { seconds = 5 };
   }
