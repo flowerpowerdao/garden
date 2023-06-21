@@ -263,11 +263,16 @@ module {
 
     // todo: restake (stop dissolving and restake)
 
-    // withdraw flowers and remove neuron
-    // todo: seed tokens
+    // withdraw flowers/rewards then remove neuron
     public func dissolveNeuron(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
       switch (neurons.get(neuronId)) {
         case (?neuron) {
+          // withdraw remaining SEED rewards
+          let res = await claimRewards(userId, neuronId, toAccount);
+          if (res != #ok) {
+            return res;
+          };
+
           // withdraw all flowers
           for (flower in neuron.flowers.vals()) {
             // transfer flower to user
