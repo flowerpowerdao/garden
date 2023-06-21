@@ -11,6 +11,8 @@ import Nat32 "mo:base/Nat32";
 import Timer "mo:base/Timer";
 import Int "mo:base/Int";
 import Nat "mo:base/Nat";
+import Iter "mo:base/Iter";
+
 import {DAY} "mo:time-consts";
 
 import Types "./types";
@@ -18,7 +20,6 @@ import Actors "./actors";
 import AccountId "./account-id";
 import ExtCore "./toniq-labs/ext/Core";
 import Utils "./utils";
-import Iter "mo:base/Iter";
 
 module {
   public type Stable = ?{
@@ -206,7 +207,26 @@ module {
       #ok(curNeuronId);
     };
 
+    public func restake(userId : Principal, neuronId : Types.NeuronId) : async Result.Result<(), Text.Text> {
+      assert(isNeuronOwner(userId, neuronId));
+
+      switch (neurons.get(neuronId)) {
+        case (?neuron) {
+          neurons.put(neuronId, {
+            neuron with
+            dissolveState = #DissolveDelay(Utils.toNanos(initArgs.stakePeriod));
+          });
+          #ok;
+        };
+        case (null) {
+          #err("neuron not found");
+        };
+      };
+    };
+
     public func claimRewards(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
+      assert(isNeuronOwner(userId, neuronId));
+
       switch (neurons.get(neuronId)) {
         case (?neuron) {
           if (neuron.rewards == 0) {
@@ -261,10 +281,10 @@ module {
       };
     };
 
-    // todo: restake (stop dissolving and restake)
-
     // withdraw flowers/rewards then remove neuron
     public func dissolveNeuron(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
+      assert(isNeuronOwner(userId, neuronId));
+
       switch (neurons.get(neuronId)) {
         case (?neuron) {
           // withdraw remaining SEED rewards
