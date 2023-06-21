@@ -8,6 +8,19 @@ import AccountId "./account-id";
 actor class(selfId : Principal, initArgs : Types.InitArgs) {
   let garden = Garden.Garden(selfId, initArgs);
 
+  // SYSTEM
+  stable var gardenStable : Garden.Stable = null;
+
+  system func preupgrade() {
+    gardenStable := garden.toStable();
+  };
+
+  system func postupgrade() {
+    garden.loadStable(gardenStable);
+    gardenStable := null;
+  };
+
+  // PUBLIC
   public query ({caller}) func getStakingAccount(nonce : Nat16) : async Types.Account {
     garden.getStakingAccount(caller, nonce);
   };

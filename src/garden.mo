@@ -18,14 +18,59 @@ import Actors "./actors";
 import AccountId "./account-id";
 import ExtCore "./toniq-labs/ext/Core";
 import Utils "./utils";
+import Iter "mo:base/Iter";
 
 module {
+  public type Stable = ?{
+    #v1: {
+      neurons : [(Types.NeuronId, Types.Neuron)];
+      neuronsByUser : [(Principal, [Types.NeuronId])];
+      curNeuronId : Nat;
+      prevRewardTime : Time.Time;
+    };
+  };
+
   public class Garden(selfId : Principal, initArgs : Types.InitArgs) {
-    let neurons = TrieMap.TrieMap<Types.NeuronId, Types.Neuron>(Nat.equal, func(x) = Text.hash(Nat.toText(x)));
-    let neuronsByUser = TrieMap.TrieMap<Principal, Buffer.Buffer<Types.NeuronId>>(Principal.equal, Principal.hash);
+    var neurons = TrieMap.TrieMap<Types.NeuronId, Types.Neuron>(Nat.equal, func(x) = Text.hash(Nat.toText(x)));
+    var neuronsByUser = TrieMap.TrieMap<Principal, Buffer.Buffer<Types.NeuronId>>(Principal.equal, Principal.hash);
     var curNeuronId = 0;
     var prevRewardTime = Time.now();
 
+    // STABLE DATA
+    public func toStable() : Stable {
+      ? #v1({
+        neurons = Iter.toArray(neurons.entries());
+        neuronsByUser = Iter.toArray(
+          Iter.map<(Principal, Buffer.Buffer<Types.NeuronId>), (Principal, [Types.NeuronId])>(
+            neuronsByUser.entries(),
+            func((userId, neuronIds)) {
+              (userId, Buffer.toArray(neuronIds));
+            }
+          ));
+        curNeuronId;
+        prevRewardTime;
+      });
+    };
+
+    public func loadStable(stab : Stable) {
+      switch (stab) {
+        case (? #v1(data)) {
+          neurons := TrieMap.fromEntries<Types.NeuronId, Types.Neuron>(data.neurons.vals(), Nat.equal, func(x) = Text.hash(Nat.toText(x)));
+          neuronsByUser := TrieMap.fromEntries<Principal, Buffer.Buffer<Types.NeuronId>>(
+            Iter.map<(Principal, [Types.NeuronId]), (Principal, Buffer.Buffer<Types.NeuronId>)>(
+              data.neuronsByUser.vals(),
+              func((userId, neuronIds)) {
+                (userId, Buffer.fromArray(neuronIds));
+              }
+            ), Principal.equal, Principal.hash);
+          curNeuronId := data.curNeuronId;
+          prevRewardTime := data.prevRewardTime;
+        };
+        case (null) {};
+      };
+    };
+
+    // PUBLIC
     let YEAR = DAY * 365;
     let BIG_NUMBER = 1_000_000_000_000_000_000_000;
 
