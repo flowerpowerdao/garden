@@ -20,6 +20,9 @@ jobs:
           vessel-version: 0.6.3
           dfx-version: 0.14.1
 
+      - name: install mops
+        run: npm i ic-mops -g
+
       - name: npm install
         run: npm install
 
