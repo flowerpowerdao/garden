@@ -1,5 +1,7 @@
 import Time "mo:base/Time";
 import Result "mo:base/Result";
+import Blob "mo:base/Blob";
+import Principal "mo:base/Principal";
 
 import Garden "./garden";
 import Types "./types";
@@ -35,5 +37,9 @@ actor class(selfId : Principal, initArgs : Types.InitArgs) {
 
   public query ({caller}) func startDissolving(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
     garden.startDissolving(caller, neuronId);
+  };
+
+  public query ({caller}) func me() : async Nat {
+    Blob.toArray(Principal.toBlob(caller)).size();
   };
 };

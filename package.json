@@ -11,7 +11,7 @@
     "create:icpflower": "dfx canister create icpflower --specified-id 4ggk4-mqaaa-aaaae-qad6q-cai",
     "deploy": "npm run build-power-equalizer && npm run deploy:main && npm run deploy:seed && npm run deploy:btcflower && npm run deploy:ethflower && npm run deploy:icpflower",
     "deploy:main": "dfx deploy main --argument \"$(cat initArgs.local.did)\"",
-    "deploy:seed": "dfx deploy seed --argument \"$(cat icrc1/initArgs.did)\"",
+    "deploy:seed": "dfx deploy seed --argument \"$(cat declarations/icrc1/initArgs.did)\"",
     "deploy:btcflower": "dfx deploy btcflower --argument \"$(cat power-equalizer/initArgs.did)\"",
     "deploy:ethflower": "dfx deploy ethflower --argument \"$(cat power-equalizer/initArgs.did)\"",
     "deploy:icpflower": "dfx deploy icpflower --argument \"$(cat power-equalizer/initArgs.did)\"",

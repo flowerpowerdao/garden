@@ -12,6 +12,8 @@ import Timer "mo:base/Timer";
 import Int "mo:base/Int";
 import Nat "mo:base/Nat";
 import Iter "mo:base/Iter";
+import Nat8 "mo:base/Nat8";
+import Nat16 "mo:base/Nat16";
 
 import {DAY} "mo:time-consts";
 
@@ -339,10 +341,14 @@ module {
       };
     };
 
-    // TODO: use nonce
     func _getStakingSubaccount(principal : Principal, nonce : Nat16) : [Nat8] {
       let principalArr = Blob.toArray(Principal.toBlob(principal));
-      let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else 0);
+      let nonceAr : [Nat8] = [
+        Nat8.fromNat(Nat16.toNat(nonce / 256)),
+        Nat8.fromNat(Nat16.toNat(nonce % 256)),
+        0,
+      ];
+      let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else nonceAr[i]);
       subaccount;
     };
 
