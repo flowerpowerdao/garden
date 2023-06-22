@@ -1,17 +1,48 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 
-export type AccountIdentifier = string;
+export interface Account {
+  'owner' : Principal,
+  'subaccount' : [] | [Uint8Array | number[]],
+}
+export type Collection = { 'BTCFlower' : null } |
+  { 'ICPFlower' : null } |
+  { 'ETHFlower' : null };
+export type DissolveState = { 'DissolveDelay' : Time } |
+  { 'DissolveTimestamp' : Time };
 export type Duration = { 'nanoseconds' : bigint } |
   { 'hours' : bigint } |
   { 'days' : bigint } |
   { 'minutes' : bigint } |
   { 'seconds' : bigint };
+export interface Flower { 'collection' : Collection, 'tokenIndex' : TokenIndex }
 export interface InitArgs {
-  'minStakePeriod' : Duration,
-  'seedRewardPerHour' : bigint,
+  'totalRewardsPerYear' : bigint,
+  'rewardInterval' : Duration,
+  'stakePeriod' : Duration,
 }
-export interface anon_class_5_1 {
-  'getStakingAccountId' : ActorMethod<[Principal], AccountIdentifier>,
+export interface Neuron {
+  'id' : bigint,
+  'userId' : Principal,
+  'createdAt' : Time,
+  'totalRewards' : bigint,
+  'rewards' : bigint,
+  'dissolveState' : DissolveState,
+  'stakingAccount' : Account,
+  'flowers' : Array<Flower>,
 }
-export interface _SERVICE extends anon_class_5_1 {}
+export type NeuronId = bigint;
+export type Result = { 'ok' : null } |
+  { 'err' : string };
+export type Result_1 = { 'ok' : NeuronId } |
+  { 'err' : string };
+export type Time = bigint;
+export type TokenIndex = bigint;
+export interface anon_class_10_1 {
+  'getStakingAccount' : ActorMethod<[number], Account>,
+  'getUserNeurons' : ActorMethod<[], Array<Neuron>>,
+  'me' : ActorMethod<[], bigint>,
+  'stake' : ActorMethod<[number], Result_1>,
+  'startDissolving' : ActorMethod<[NeuronId], Result>,
+}
+export interface _SERVICE extends anon_class_10_1 {}

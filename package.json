@@ -16,7 +16,7 @@
     "deploy:ethflower": "dfx deploy ethflower --argument \"$(cat power-equalizer/initArgs.did)\"",
     "deploy:icpflower": "dfx deploy icpflower --argument \"$(cat power-equalizer/initArgs.did)\"",
     "deploy-ic": "dfx deploy main --argument \"$(cat initArgs.ic.did)\"",
-    "test": "vitest --threads false"
+    "test": "vitest --threads false test/*"
   },
   "dependencies": {
     "@dfinity/agent": "^0.15.6",
