@@ -348,7 +348,7 @@ module {
         Nat8.fromNat(Nat16.toNat(nonce % 256)),
         0,
       ];
-      let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else nonceAr[i]);
+      let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else nonceAr[31 - i]);
       subaccount;
     };
 
