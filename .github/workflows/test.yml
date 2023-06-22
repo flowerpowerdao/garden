@@ -23,6 +23,9 @@ jobs:
       - name: npm install
         run: npm install
 
+      - name: git submodule update
+        run: git submodule update --init
+
       - name: test
         run: |
             npm start
