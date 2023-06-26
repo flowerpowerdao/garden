@@ -48,7 +48,7 @@ export const idlFactory = ({ IDL }) => {
     'getUserNeurons' : IDL.Func([], [IDL.Vec(Neuron)], ['query']),
     'me' : IDL.Func([], [IDL.Nat], ['query']),
     'stake' : IDL.Func([IDL.Nat16], [Result_1], []),
-    'startDissolving' : IDL.Func([NeuronId], [Result], ['query']),
+    'dissolveNeuron' : IDL.Func([NeuronId], [Result], ['query']),
   });
   return anon_class_10_1;
 };

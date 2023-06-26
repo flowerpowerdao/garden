@@ -248,8 +248,7 @@ module {
             case (#Ok(index)) {
               neurons.put(neuronId, {
                 neuron with
-                amount = 0;
-                lastWithdrwanAt = Time.now();
+                rewards = 0;
               });
               #ok;
             };
@@ -264,10 +263,10 @@ module {
       };
     };
 
-    public func startDissolving(userId : Principal, neuronId : Types.NeuronId) : Result.Result<(), Text.Text> {
+    public func dissolveNeuron(userId : Principal, neuronId : Types.NeuronId) : Result.Result<(), Text.Text> {
       assert(isNeuronOwner(userId, neuronId));
 
-      let ?neuron = neurons.get(neuronId) else Debug.trap("neuron not found");
+      let ?neuron = neurons.get(neuronId) else return #err("neuron not found");
 
       switch (neuron.dissolveState) {
         case (#DissolveDelay(dissolveDelay)) {
@@ -284,7 +283,7 @@ module {
     };
 
     // withdraw flowers/rewards then remove neuron
-    public func dissolveNeuron(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
+    public func disburseNeuron(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text.Text> {
       assert(isNeuronOwner(userId, neuronId));
 
       switch (neurons.get(neuronId)) {
@@ -346,9 +345,21 @@ module {
       let nonceAr : [Nat8] = [
         Nat8.fromNat(Nat16.toNat(nonce / 256)),
         Nat8.fromNat(Nat16.toNat(nonce % 256)),
-        0,
       ];
-      let subaccount = Array.tabulate<Nat8>(32, func i = if (i < principalArr.size()) principalArr[i] else nonceAr[31 - i]);
+      let subaccount = Array.tabulate<Nat8>(32, func(i) {
+        if (i < principalArr.size()) {
+          principalArr[i];
+        } else if (i == 29 or i == 30) {
+          // add nonce
+          nonceAr[30 - i];
+        } else if (i == 31) {
+          // store principal size in last byte
+          Nat8.fromNat(principalArr.size());
+        } else {
+          // pad with 0
+          0;
+        };
+      });
       subaccount;
     };
 

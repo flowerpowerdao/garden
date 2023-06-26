@@ -35,8 +35,12 @@ actor class(selfId : Principal, initArgs : Types.InitArgs) {
     garden.getUserNeurons(caller);
   };
 
-  public query ({caller}) func startDissolving(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
-    garden.startDissolving(caller, neuronId);
+  public query ({caller}) func dissolveNeuron(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
+    garden.dissolveNeuron(caller, neuronId);
+  };
+
+  public shared ({caller}) func disburseNeuron(neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text> {
+    await garden.disburseNeuron(caller, neuronId, toAccount);
   };
 
   public query ({caller}) func me() : async Nat {

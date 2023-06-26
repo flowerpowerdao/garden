@@ -43,6 +43,6 @@ export interface anon_class_10_1 {
   'getUserNeurons' : ActorMethod<[], Array<Neuron>>,
   'me' : ActorMethod<[], bigint>,
   'stake' : ActorMethod<[number], Result_1>,
-  'startDissolving' : ActorMethod<[NeuronId], Result>,
+  'dissolveNeuron' : ActorMethod<[NeuronId], Result>,
 }
 export interface _SERVICE extends anon_class_10_1 {}

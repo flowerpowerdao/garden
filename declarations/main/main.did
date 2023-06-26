@@ -1,25 +1,25 @@
-type anon_class_10_1 = 
+type anon_class_10_1 =
  service {
    getStakingAccount: (nat16) -> (Account) query;
    getUserNeurons: () -> (vec Neuron) query;
    me: () -> (nat) query;
    stake: (nat16) -> (Result_1);
-   startDissolving: (NeuronId) -> (Result) query;
+   dissolveNeuron: (NeuronId) -> (Result) query;
  };
 type TokenIndex = nat;
 type Time = int;
-type Result_1 = 
+type Result_1 =
  variant {
    err: text;
    ok: NeuronId;
  };
-type Result = 
+type Result =
  variant {
    err: text;
    ok;
  };
 type NeuronId = nat;
-type Neuron = 
+type Neuron =
  record {
    createdAt: Time;
    dissolveState: DissolveState;
@@ -30,18 +30,18 @@ type Neuron =
    totalRewards: nat;
    userId: principal;
  };
-type InitArgs = 
+type InitArgs =
  record {
    rewardInterval: Duration;
    stakePeriod: Duration;
    totalRewardsPerYear: nat;
  };
-type Flower = 
+type Flower =
  record {
    collection: Collection;
    tokenIndex: TokenIndex;
  };
-type Duration = 
+type Duration =
  variant {
    days: nat;
    hours: nat;
@@ -49,18 +49,18 @@ type Duration =
    nanoseconds: nat;
    seconds: nat;
  };
-type DissolveState = 
+type DissolveState =
  variant {
    DissolveDelay: Time;
    DissolveTimestamp: Time;
  };
-type Collection = 
+type Collection =
  variant {
    BTCFlower;
    ETHFlower;
    ICPFlower;
  };
-type Account = 
+type Account =
  record {
    owner: principal;
    subaccount: opt vec nat8;
