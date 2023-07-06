@@ -9,6 +9,7 @@ import AccountId "./account-id";
 
 actor class(selfId : Principal, initArgs : Types.InitArgs) {
   let garden = Garden.Garden(selfId, initArgs);
+  garden.setTimers();
 
   // SYSTEM
   stable var gardenStable : Garden.Stable = null;
@@ -20,6 +21,7 @@ actor class(selfId : Principal, initArgs : Types.InitArgs) {
   system func postupgrade() {
     garden.loadStable(gardenStable);
     gardenStable := null;
+    garden.setTimers();
   };
 
   // PUBLIC

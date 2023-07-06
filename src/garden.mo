@@ -29,7 +29,6 @@ module {
       neurons : [(Types.NeuronId, Types.Neuron)];
       neuronsByUser : [(Principal, [Types.NeuronId])];
       curNeuronId : Nat;
-      prevRewardTime : Time.Time;
     };
   };
 
@@ -37,7 +36,6 @@ module {
     var neurons = TrieMap.TrieMap<Types.NeuronId, Types.Neuron>(Nat.equal, func(x) = Text.hash(Nat.toText(x)));
     var neuronsByUser = TrieMap.TrieMap<Principal, Buffer.Buffer<Types.NeuronId>>(Principal.equal, Principal.hash);
     var curNeuronId = 0;
-    var prevRewardTime = Time.now();
 
     // STABLE DATA
     public func toStable() : Stable {
@@ -51,7 +49,6 @@ module {
             }
           ));
         curNeuronId;
-        prevRewardTime;
       });
     };
 
@@ -67,7 +64,6 @@ module {
               }
             ), Principal.equal, Principal.hash);
           curNeuronId := data.curNeuronId;
-          prevRewardTime := data.prevRewardTime;
         };
         case (null) {};
       };
@@ -76,9 +72,11 @@ module {
     // PUBLIC
     let YEAR = DAY * 365;
     let BIG_NUMBER = 1_000_000_000_000_000_000_000;
+    var timerId = 0;
 
     public func setTimers() {
-      ignore Timer.recurringTimer(#nanoseconds(Utils.toNanos(initArgs.rewardInterval)), func() : async () {
+      Timer.cancelTimer(timerId);
+      timerId := Timer.recurringTimer(#nanoseconds(Utils.toNanos(initArgs.rewardInterval)), func() : async () {
         ignore _mintRewards();
       });
     };
@@ -86,29 +84,32 @@ module {
     func _mintRewards() : async () {
       let now = Time.now();
       let totalVotingPower = getTotalVotingPower();
-      let elapsedTime = Int.abs(now - prevRewardTime);
-      let rewardsForElapsedTime = BIG_NUMBER * initArgs.totalRewardsPerYear / YEAR * elapsedTime / BIG_NUMBER;
 
       for (neuron in neurons.vals()) {
         switch (neuron.dissolveState) {
           // not dissolving
           case (#DissolveDelay(_)) {
+            // calculate rewards for neuron based on voting power and elapsed time
+            let elapsedTime = Int.abs(now - neuron.prevRewardTime);
+            let totalRewardsForElapsedTime = BIG_NUMBER * initArgs.totalRewardsPerYear / YEAR * elapsedTime / BIG_NUMBER;
             let votingPower = getNeuronVotingPower(neuron.id);
-            let rewards = BIG_NUMBER * votingPower / totalVotingPower * rewardsForElapsedTime / BIG_NUMBER;
+            let rewards = BIG_NUMBER * votingPower / totalVotingPower * totalRewardsForElapsedTime / BIG_NUMBER;
+
+            Debug.print("votingPower " # debug_show(votingPower));
+            Debug.print("rewards " # debug_show(rewards));
 
             // add rewards to neuron
             neurons.put(neuron.id, {
               neuron with
               rewards = neuron.rewards + rewards;
               totalRewards = neuron.totalRewards + rewards;
+              prevRewardTime = now;
             });
           };
           // dissolving
           case (#DissolveTimestamp(_)) {};
         };
       };
-
-      prevRewardTime := now;
     };
 
     public func getUserNeurons(userId : Principal) : [Types.Neuron] {
@@ -192,6 +193,7 @@ module {
         dissolveState = #DissolveDelay(Utils.toNanos(initArgs.stakePeriod));
         rewards = 0;
         totalRewards = 0;
+        prevRewardTime = Time.now();
       });
 
       let neuronIds = switch (neuronsByUser.get(userId)) {
@@ -391,7 +393,8 @@ module {
             };
           };
           case (#err(err)) {
-            return Debug.trap("Failed to get tokens for collection " # debug_show(collection) # ": " # debug_show(err));
+            // no tokens
+            // return Debug.trap("Failed to get tokens for collection " # debug_show(collection) # ": " # debug_show(err));
           };
         };
       };

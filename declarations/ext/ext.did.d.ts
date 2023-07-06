@@ -15,6 +15,14 @@ export interface Asset {
   'name' : string,
   'payload' : File,
 }
+export interface AssetV2 {
+  'thumbnail' : [] | [File],
+  'payloadUrl' : [] | [string],
+  'thumbnailUrl' : [] | [string],
+  'metadata' : [] | [File],
+  'name' : string,
+  'payload' : File,
+}
 export type Balance = bigint;
 export interface BalanceRequest { 'token' : TokenIdentifier, 'user' : User }
 export type BalanceResponse = { 'ok' : Balance } |
@@ -23,8 +31,10 @@ export type Balance__1 = bigint;
 export type Balance__2 = bigint;
 export interface Canister {
   'acceptCycles' : ActorMethod<[], undefined>,
-  'addAsset' : ActorMethod<[Asset], bigint>,
-  'airdropTokens' : ActorMethod<[bigint], undefined>,
+  'addAsset' : ActorMethod<[AssetV2], bigint>,
+  'addAssets' : ActorMethod<[Array<AssetV2>], bigint>,
+  'addPlaceholder' : ActorMethod<[AssetV2], undefined>,
+  'airdropTokens' : ActorMethod<[], undefined>,
   'allSettlements' : ActorMethod<[], Array<[TokenIndex__1, Settlement]>>,
   'availableCycles' : ActorMethod<[], bigint>,
   'backupChunk' : ActorMethod<[bigint, bigint], StableChunk>,
@@ -250,6 +260,7 @@ export type HttpStreamingStrategy = {
 export interface InitArgs {
   'timersInterval' : [] | [Duration],
   'dutchAuction' : [] | [DutchAuction],
+  'legacyPlaceholder' : [] | [boolean],
   'whitelists' : Array<Whitelist>,
   'marketplaces' : Array<[string, AccountIdentifier, bigint]>,
   'name' : string,
@@ -321,6 +332,7 @@ export interface NumericEntity {
   'first' : bigint,
   'last' : bigint,
 }
+export type RemainingSpots = bigint;
 export type Result = {
     'ok' : Array<[TokenIndex, [] | [Listing], [] | [Uint8Array | number[]]]>
   } |
@@ -361,11 +373,20 @@ export interface SaleSettings {
   'whitelistTime' : Time__2,
   'salePrice' : bigint,
   'remaining' : bigint,
+  'openEdition' : boolean,
   'price' : bigint,
 }
 export interface SaleTransaction {
   'time' : Time__2,
   'seller' : Principal,
+  'tokens' : Uint32Array | number[],
+  'buyer' : AccountIdentifier__5,
+  'price' : bigint,
+}
+export interface SaleV1 {
+  'expires' : Time__2,
+  'slot' : [] | [WhitelistSlot],
+  'subaccount' : SubAccount__1,
   'tokens' : Uint32Array | number[],
   'buyer' : AccountIdentifier__5,
   'price' : bigint,
@@ -388,7 +409,18 @@ export type StableChunk = {
       'shuffle' : StableChunk__5,
     }
   };
-export type StableChunk__1 = [] | [{ 'v1' : { 'assets' : Array<Asset> } }];
+export type StableChunk__1 = [] | [
+  { 'v1' : { 'assetsChunk' : Array<Asset>, 'assetsCount' : bigint } } |
+    {
+      'v2' : {
+        'assetsChunk' : Array<AssetV2>,
+        'assetsCount' : bigint,
+        'placeholder' : AssetV2,
+      }
+    } |
+    { 'v1_chunk' : { 'assetsChunk' : Array<Asset> } } |
+    { 'v2_chunk' : { 'assetsChunk' : Array<AssetV2> } }
+];
 export type StableChunk__2 = [] | [
   { 'v1' : { 'disbursements' : Array<Disbursement> } }
 ];
@@ -408,7 +440,7 @@ export type StableChunk__4 = [] | [
   {
       'v1' : {
         'whitelist' : Array<[bigint, AccountIdentifier__5, WhitelistSlot]>,
-        'salesSettlements' : Array<[AccountIdentifier__5, Sale]>,
+        'salesSettlements' : Array<[AccountIdentifier__5, SaleV1]>,
         'totalToSell' : bigint,
         'failedSales' : Array<[AccountIdentifier__5, SubAccount__1]>,
         'sold' : bigint,
@@ -429,7 +461,7 @@ export type StableChunk__4 = [] | [
         'saleTransactionCount' : bigint,
         'nextSubAccount' : bigint,
         'soldIcp' : bigint,
-        'whitelistSpots' : Array<[WhitelistSpotId, WhitelistSpotUsed]>,
+        'whitelistSpots' : Array<[WhitelistSpotId, RemainingSpots]>,
         'tokensForSale' : Uint32Array | number[],
       }
     } |
@@ -515,5 +547,4 @@ export interface Whitelist {
 }
 export interface WhitelistSlot { 'end' : Time, 'start' : Time }
 export type WhitelistSpotId = string;
-export type WhitelistSpotUsed = boolean;
 export interface _SERVICE extends Canister {}

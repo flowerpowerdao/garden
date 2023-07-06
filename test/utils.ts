@@ -3,7 +3,8 @@ import { expect } from "vitest";
 import { User } from "./user";
 
 import canisterIds from '../.dfx/local/canister_ids.json';
-import { AccountIdentifier } from "@dfinity/nns";
+import { AccountIdentifier, SubAccount } from "@dfinity/nns";
+import {Account} from '../declarations/icrc1/icrc1.did';
 
 export function feeOf(amount: bigint, fee: bigint) {
   return amount * fee / 100_000n;
@@ -55,16 +56,40 @@ export let to32bits = (num) => {
 }
 
 // https://github.com/Toniq-Labs/ext-cli/blob/main/src/extjs.js#L20-L45
-// export let tokenIdentifier = (index) => {
-//   let padding = Buffer.from("\x0Atid");
-//   let array = new Uint8Array([
-//       ...padding,
-//       ...Principal.fromText(canisterIds.test.local).toUint8Array(),
-//       ...to32bits(index),
-//   ]);
-//   return Principal.fromUint8Array(array).toText();
-// };
+export let tokenIdentifier = (canisterId, index) => {
+  let padding = Buffer.from("\x0Atid");
+  let array = new Uint8Array([
+      ...padding,
+      ...Principal.fromText(canisterId).toUint8Array(),
+      ...to32bits(index),
+  ]);
+  return Principal.fromUint8Array(array).toText();
+};
 
 export let toAccount = (address: string) => {
   return { account: AccountIdentifier.fromHex(address).toNumbers() };
+}
+
+export let toAccountId = (account: Account) => {
+  if (account.subaccount[0]) {
+    let sa = account.subaccount[0];
+    return AccountIdentifier.fromPrincipal({
+      principal: account.owner,
+      subAccount: sa ? {
+        toUint8Array: () => Uint8Array.from(sa)
+      } as SubAccount : undefined,
+    }).toHex();
+  }
+  else {
+    return AccountIdentifier.fromPrincipal({principal: account.owner}).toHex();
+  }
+};
+
+export function rewardsForVotingPower(votingPower: number | bigint, totalVotingPower: number | bigint, elapsedTime: bigint) {
+  let totalRewardsPerYear = 1_000_000_00000000n;
+  let YEAR = 86_400_000_000_000n * 365n;
+  let BIG_NUMBER = 1_000_000_000_000_000_000_000n;
+  let rewardsForElapsedTime = BIG_NUMBER * totalRewardsPerYear / YEAR * elapsedTime / BIG_NUMBER;
+  let rewards = BIG_NUMBER * BigInt(votingPower) / BigInt(totalVotingPower) * rewardsForElapsedTime / BIG_NUMBER;
+  return rewards;
 }

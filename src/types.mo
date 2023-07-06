@@ -35,6 +35,7 @@ module {
     flowers : [Flower];
     rewards : Nat; // current rewards balance available for withdrawal
     totalRewards : Nat;
+    prevRewardTime : Time.Time; // previous reward minting time
   };
 
   public type Duration = {

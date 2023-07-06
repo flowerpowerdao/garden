@@ -12,22 +12,42 @@
     "seed": {
       "type": "custom",
       "wasm": "declarations/icrc1/icrc1.wasm",
-      "candid": "declarations/icrc1/icrc1.did"
+      "candid": "declarations/icrc1/icrc1.did",
+      "remote": {
+        "id": {
+          "ic": "2222s-4iaaa-aaaaf-ax2uq-cai"
+        }
+      }
     },
     "btcflower": {
       "type": "custom",
       "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
-      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did"
+      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did",
+      "remote": {
+        "id": {
+          "ic": "pk6rk-6aaaa-aaaae-qaazq-cai"
+        }
+      }
     },
     "ethflower": {
       "type": "custom",
       "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
-      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did"
+      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did",
+      "remote": {
+        "id": {
+          "ic": "dhiaa-ryaaa-aaaae-qabva-cai"
+        }
+      }
     },
     "icpflower": {
       "type": "custom",
       "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
-      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did"
+      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did",
+      "remote": {
+        "id": {
+          "ic": "4ggk4-mqaaa-aaaae-qad6q-cai"
+        }
+      }
     }
   },
   "defaults": {
@@ -36,6 +56,6 @@
       "args": ""
     }
   },
-  "dfx": "0.14.1",
+  "dfx": "0.14.2",
   "output_env_file": ".env"
 }

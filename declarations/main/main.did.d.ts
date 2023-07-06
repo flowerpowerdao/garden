@@ -23,6 +23,7 @@ export interface InitArgs {
 }
 export interface Neuron {
   'id' : bigint,
+  'prevRewardTime' : Time,
   'userId' : Principal,
   'createdAt' : Time,
   'totalRewards' : bigint,
@@ -32,17 +33,18 @@ export interface Neuron {
   'flowers' : Array<Flower>,
 }
 export type NeuronId = bigint;
-export type Result = { 'ok' : null } |
+export type Result = { 'ok' : NeuronId } |
   { 'err' : string };
-export type Result_1 = { 'ok' : NeuronId } |
+export type Result_1 = { 'ok' : null } |
   { 'err' : string };
 export type Time = bigint;
 export type TokenIndex = bigint;
 export interface anon_class_10_1 {
+  'disburseNeuron' : ActorMethod<[NeuronId, Account], Result_1>,
+  'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
   'getStakingAccount' : ActorMethod<[number], Account>,
   'getUserNeurons' : ActorMethod<[], Array<Neuron>>,
   'me' : ActorMethod<[], bigint>,
-  'stake' : ActorMethod<[number], Result_1>,
-  'dissolveNeuron' : ActorMethod<[NeuronId], Result>,
+  'stake' : ActorMethod<[number], Result>,
 }
 export interface _SERVICE extends anon_class_10_1 {}
