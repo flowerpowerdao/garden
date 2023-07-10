@@ -182,6 +182,10 @@ module {
       let stakingAccount = getStakingAccount(userId, nonce);
       let flowers = await _getFlowersOnAccount(stakingAccount);
 
+      if (flowers.size() == 0) {
+        return #err("no flowers found");
+      };
+
       curNeuronId += 1;
 
       neurons.put(curNeuronId, {
@@ -190,6 +194,7 @@ module {
         stakingAccount;
         flowers;
         createdAt = Time.now();
+        stakedAt = Time.now();
         dissolveState = #DissolveDelay(Utils.toNanos(initArgs.stakePeriod));
         rewards = 0;
         totalRewards = 0;
@@ -211,7 +216,7 @@ module {
       #ok(curNeuronId);
     };
 
-    public func restake(userId : Principal, neuronId : Types.NeuronId) : async Result.Result<(), Text.Text> {
+    public func restake(userId : Principal, neuronId : Types.NeuronId) : Result.Result<(), Text.Text> {
       assert(isNeuronOwner(userId, neuronId));
 
       switch (neurons.get(neuronId)) {
@@ -219,6 +224,8 @@ module {
           neurons.put(neuronId, {
             neuron with
             dissolveState = #DissolveDelay(Utils.toNanos(initArgs.stakePeriod));
+            stakedAt = Time.now();
+            prevRewardTime = Time.now();
           });
           #ok;
         };
@@ -234,16 +241,16 @@ module {
       switch (neurons.get(neuronId)) {
         case (?neuron) {
           if (neuron.rewards == 0) {
-            return #ok;
+            return #err("no rewards to claim");
           };
 
           let res = await Actors.SEED.icrc1_transfer({
             to = toAccount;
+            amount = neuron.rewards;
             fee = null;
             memo = null;
             from_subaccount = null;
             created_at_time = null;
-            amount = neuron.rewards;
           });
 
           switch (res) {
@@ -290,6 +297,17 @@ module {
 
       switch (neurons.get(neuronId)) {
         case (?neuron) {
+          switch (neuron.dissolveState) {
+            case (#DissolveTimestamp(dissolveTimestamp)) {
+              if (dissolveTimestamp > Time.now()) {
+                return #err("neuron is not dissolved yet");
+              };
+            };
+            case (_) {
+              return #err("neuron is not dissolved yet");
+            };
+          };
+
           // withdraw remaining SEED rewards
           let res = await claimRewards(userId, neuronId, toAccount);
           if (res != #ok) {
@@ -393,7 +411,7 @@ module {
             };
           };
           case (#err(err)) {
-            // no tokens
+            // skip "no tokens" error
             // return Debug.trap("Failed to get tokens for collection " # debug_show(collection) # ": " # debug_show(err));
           };
         };

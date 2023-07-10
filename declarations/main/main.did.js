@@ -35,6 +35,7 @@ export const idlFactory = ({ IDL }) => {
   const Neuron = IDL.Record({
     'id' : IDL.Nat,
     'prevRewardTime' : Time,
+    'stakedAt' : Time,
     'userId' : IDL.Principal,
     'createdAt' : Time,
     'totalRewards' : IDL.Nat,
@@ -45,11 +46,12 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result = IDL.Variant({ 'ok' : NeuronId, 'err' : IDL.Text });
   const anon_class_10_1 = IDL.Service({
+    'claimRewards' : IDL.Func([NeuronId, Account], [Result_1], []),
     'disburseNeuron' : IDL.Func([NeuronId, Account], [Result_1], []),
-    'dissolveNeuron' : IDL.Func([NeuronId], [Result_1], ['query']),
+    'dissolveNeuron' : IDL.Func([NeuronId], [Result_1], []),
     'getStakingAccount' : IDL.Func([IDL.Nat16], [Account], ['query']),
     'getUserNeurons' : IDL.Func([], [IDL.Vec(Neuron)], ['query']),
-    'me' : IDL.Func([], [IDL.Nat], ['query']),
+    'restake' : IDL.Func([NeuronId], [Result_1], []),
     'stake' : IDL.Func([IDL.Nat16], [Result], []),
   });
   return anon_class_10_1;

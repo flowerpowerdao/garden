@@ -15,9 +15,9 @@ import { tokenIdentifier } from './utils';
 export class User extends FakeUser {
   mainActor = this.createActor<_SERVICE_MAIN>(idlFactoryMain, canisterIds.main.local);
   seedActor = this.createActor<_SERVICE_SEED>(idlFactorySeed, canisterIds.seed.local);
-  btcflowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.btcflower.local);
-  ethflowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.ethflower.local);
-  icpflowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.icpflower.local);
+  btcFlowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.btcflower.local);
+  ethFlowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.ethflower.local);
+  icpFlowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.icpflower.local);
 
   async mintFlower(actor: _SERVICE_EXT, canisterId: string) {
     let minter = new User('minter');
@@ -39,14 +39,14 @@ export class User extends FakeUser {
   }
 
   async mintBTCFlower() {
-    await this.mintFlower(new User('minter').btcflowerActor, canisterIds.btcflower.local);
+    await this.mintFlower(new User('minter').btcFlowerActor, canisterIds.btcflower.local);
   }
 
   async mintETHFlower() {
-    await this.mintFlower(new User('minter').ethflowerActor, canisterIds.ethflower.local);
+    await this.mintFlower(new User('minter').ethFlowerActor, canisterIds.ethflower.local);
   }
 
   async mintICPFlower() {
-    await this.mintFlower(new User('minter').icpflowerActor, canisterIds.icpflower.local);
+    await this.mintFlower(new User('minter').icpFlowerActor, canisterIds.icpflower.local);
   }
 }

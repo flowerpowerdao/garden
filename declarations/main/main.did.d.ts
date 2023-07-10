@@ -24,6 +24,7 @@ export interface InitArgs {
 export interface Neuron {
   'id' : bigint,
   'prevRewardTime' : Time,
+  'stakedAt' : Time,
   'userId' : Principal,
   'createdAt' : Time,
   'totalRewards' : bigint,
@@ -40,11 +41,12 @@ export type Result_1 = { 'ok' : null } |
 export type Time = bigint;
 export type TokenIndex = bigint;
 export interface anon_class_10_1 {
+  'claimRewards' : ActorMethod<[NeuronId, Account], Result_1>,
   'disburseNeuron' : ActorMethod<[NeuronId, Account], Result_1>,
   'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
   'getStakingAccount' : ActorMethod<[number], Account>,
   'getUserNeurons' : ActorMethod<[], Array<Neuron>>,
-  'me' : ActorMethod<[], bigint>,
+  'restake' : ActorMethod<[NeuronId], Result_1>,
   'stake' : ActorMethod<[number], Result>,
 }
 export interface _SERVICE extends anon_class_10_1 {}

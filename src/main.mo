@@ -33,19 +33,23 @@ actor class(selfId : Principal, initArgs : Types.InitArgs) {
     await garden.stake(caller, nonce);
   };
 
+  public shared ({caller}) func restake(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
+    garden.restake(caller, neuronId);
+  };
+
   public query ({caller}) func getUserNeurons() : async [Types.Neuron] {
     garden.getUserNeurons(caller);
   };
 
-  public query ({caller}) func dissolveNeuron(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
+  public shared ({caller}) func dissolveNeuron(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
     garden.dissolveNeuron(caller, neuronId);
+  };
+
+  public shared ({caller}) func claimRewards(neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text> {
+    await garden.claimRewards(caller, neuronId, toAccount);
   };
 
   public shared ({caller}) func disburseNeuron(neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text> {
     await garden.disburseNeuron(caller, neuronId, toAccount);
-  };
-
-  public query ({caller}) func me() : async Nat {
-    Blob.toArray(Principal.toBlob(caller)).size();
   };
 };

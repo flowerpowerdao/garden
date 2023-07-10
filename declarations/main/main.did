@@ -1,10 +1,11 @@
 type anon_class_10_1 = 
  service {
+   claimRewards: (NeuronId, Account) -> (Result_1);
    disburseNeuron: (NeuronId, Account) -> (Result_1);
-   dissolveNeuron: (NeuronId) -> (Result_1) query;
+   dissolveNeuron: (NeuronId) -> (Result_1);
    getStakingAccount: (nat16) -> (Account) query;
    getUserNeurons: () -> (vec Neuron) query;
-   me: () -> (nat) query;
+   restake: (NeuronId) -> (Result_1);
    stake: (nat16) -> (Result);
  };
 type TokenIndex = nat;
@@ -28,6 +29,7 @@ type Neuron =
    id: nat;
    prevRewardTime: Time;
    rewards: nat;
+   stakedAt: Time;
    stakingAccount: Account;
    totalRewards: nat;
    userId: principal;

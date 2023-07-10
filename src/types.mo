@@ -23,7 +23,7 @@ module {
 
   public type DissolveState = {
     #DissolveDelay : Time.Time; // not dissolving
-    #DissolveTimestamp : Time.Time; // dissolving, in this timestamp user can dissolve neuron and withdraw flowers
+    #DissolveTimestamp : Time.Time; // dissolving, in this timestamp user can disburse neuron and withdraw flowers
   };
 
   public type Neuron = {
@@ -31,6 +31,7 @@ module {
     userId : Principal;
     stakingAccount : Account;
     createdAt : Time.Time;
+    stakedAt : Time.Time;
     dissolveState : DissolveState;
     flowers : [Flower];
     rewards : Nat; // current rewards balance available for withdrawal

@@ -34,27 +34,29 @@ describe('staking', () => {
     await user.mintBTCFlower();
     await user.mintETHFlower();
 
-    let btcflowers = await user.btcflowerActor.tokens(user.accountId);
-    await user.btcflowerActor.transfer({
+    let btcFlowers = await user.btcFlowerActor.tokens(user.accountId);
+    let res1 = await user.btcFlowerActor.transfer({
       amount: 1n,
       from: { address: user.accountId },
       to: { address: toAccountId(stakingAccount) },
       memo: [],
       notify: false,
       subaccount: [],
-      token: tokenIdentifier(canisterIds.btcflower.local, btcflowers['ok'][0]),
+      token: tokenIdentifier(canisterIds.btcflower.local, btcFlowers['ok'][0]),
     });
+    expect(res1).toHaveProperty('ok');
 
-    let ethtokens = await user.ethflowerActor.tokens(user.accountId);
-    await user.btcflowerActor.transfer({
+    let ethFlowers = await user.ethFlowerActor.tokens(user.accountId);
+    let res2 = await user.ethFlowerActor.transfer({
       amount: 1n,
       from: { address: user.accountId },
       to: { address: toAccountId(stakingAccount) },
       memo: [],
       notify: false,
       subaccount: [],
-      token: tokenIdentifier(canisterIds.btcflower.local, ethtokens['ok'][0]),
+      token: tokenIdentifier(canisterIds.ethflower.local, ethFlowers['ok'][0]),
     });
+    expect(res2).toHaveProperty('ok');
   });
 
   test('stake neuron', async () => {
@@ -75,28 +77,112 @@ describe('staking', () => {
 
   test('check rewards', async () => {
     let neuron = (await user.mainActor.getUserNeurons())[0];
-    let rewards = rewardsForVotingPower(3, totalVotingPower, neuron.prevRewardTime - neuron.createdAt)
+    let rewards = rewardsForVotingPower(3, totalVotingPower, neuron.prevRewardTime - neuron.stakedAt)
     expect(neuron.rewards).toBeGreaterThan(rewards - 2n);
   });
 
-  test('dissolve neuron', async () => {
-    let neurons = await user.mainActor.getUserNeurons();
-    await user.mainActor.dissolveNeuron(neurons[0].id);
-  });
-
-  let curRewards = 0n;
-  test('save current rewards', async () => {
-    let neurons = await user.mainActor.getUserNeurons();
-    await user.mainActor.dissolveNeuron(neurons[0].id);
-    curRewards = neurons[0].rewards;
-  });
-
-  test('wait for neuron to dissolve', async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000 * 15));
-  });
-
-  test('check there are no new rewards', async () => {
+  test('try to disburse not dissolving neuron', async () => {
     let neuron = (await user.mainActor.getUserNeurons())[0];
-    expect(neuron.rewards).toBeGreaterThan(curRewards);
+    let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
+    expect(res).toEqual({ err: "neuron is not dissolved yet" });
+  });
+
+  describe('dissolve', () => {
+    test('dissolve neuron', async () => {
+      let neurons = await user.mainActor.getUserNeurons();
+      expect(await user.mainActor.dissolveNeuron(neurons[0].id)).toHaveProperty('ok');
+    });
+
+    test('check neuron\'s dissolve state', async () => {
+      let neuron = (await user.mainActor.getUserNeurons())[0];
+      expect(neuron.dissolveState).toHaveProperty('DissolveTimestamp');
+    });
+
+    let curRewards = 0n;
+    test('save current rewards', async () => {
+      let neurons = await user.mainActor.getUserNeurons();
+      curRewards = neurons[0].rewards;
+    });
+
+    test('try to disburse dissolving but not dissolved neuron', async () => {
+      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
+      expect(res).toEqual({err: "neuron is not dissolved yet"});
+    });
+
+    test('wait for neuron to dissolve', async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000 * 15));
+    });
+
+    test('check there are no new rewards', async () => {
+      let neuron = (await user.mainActor.getUserNeurons())[0];
+      expect(neuron.rewards).toBe(curRewards);
+    });
+  });
+
+  test('withdraw rewards', async () => {
+    let newUser = new User;
+    let neuron = (await user.mainActor.getUserNeurons())[0];
+    let res = await user.mainActor.claimRewards(neuron.id, newUser.account);
+    expect(res).toHaveProperty('ok');
+    expect(await user.seedActor.icrc1_balance_of(newUser.account)).toBe(neuron.rewards);
+
+    neuron = (await user.mainActor.getUserNeurons())[0];
+    expect(neuron.rewards).toBe(0n);
+  });
+
+  describe('restake', () => {
+    test('restake neuron', async () => {
+      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let res = await user.mainActor.restake(neuron.id);
+      expect(res).toHaveProperty('ok');
+    });
+
+    test('wait for rewards', async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000 * 5));
+    });
+
+    test('check rewards', async () => {
+      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let rewards = rewardsForVotingPower(3, totalVotingPower, neuron.prevRewardTime - neuron.stakedAt);
+      expect(neuron.rewards).toBeGreaterThan(rewards - 2n);
+    });
+  });
+
+  describe('dissolve again', () => {
+    test('dissolve neuron', async () => {
+      let neurons = await user.mainActor.getUserNeurons();
+      expect(await user.mainActor.dissolveNeuron(neurons[0].id)).toHaveProperty('ok');
+    });
+
+    let curRewards = 0n;
+    test('save current rewards', async () => {
+      let neurons = await user.mainActor.getUserNeurons();
+      curRewards = neurons[0].rewards;
+    });
+
+    test('wait for neuron to dissolve', async () => {
+      await new Promise(resolve => setTimeout(resolve, 1000 * 15));
+    });
+
+    test('check there are no new rewards', async () => {
+      let neuron = (await user.mainActor.getUserNeurons())[0];
+      expect(neuron.rewards).toBe(curRewards);
+    });
+  });
+
+  test('disburse neuron', async () => {
+    let neuron = (await user.mainActor.getUserNeurons())[0];
+    let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
+    expect(res).toHaveProperty('ok');
+
+    expect(await user.seedActor.icrc1_balance_of(user.account)).toBe(neuron.rewards);
+    expect((await user.btcFlowerActor.tokens(user.accountId))['ok'][0]).toBe(Number([neuron.flowers.find(f => 'BTCFlower' in f.collection)?.tokenIndex]));
+    expect((await user.ethFlowerActor.tokens(user.accountId))['ok'][0]).toBe(Number([neuron.flowers.find(f => 'ETHFlower' in f.collection)?.tokenIndex]));
+  });
+
+  test('neuron should be deleted', async () => {
+    let neurons = await user.mainActor.getUserNeurons();
+    expect(neurons.length).toBe(0);
   });
 });
