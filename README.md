@@ -3,6 +3,7 @@
 ## Preparation for development
 ```
 git submodule update --init
+npm install
 npm i ic-mops -g
 ```
 
