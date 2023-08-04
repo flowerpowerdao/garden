@@ -3,10 +3,21 @@
   "canisters": {
     "main": {
       "type": "motoko",
-      "main": "src/main.mo",
+      "main": "backend/main.mo",
       "declarations": {
         "node_compatibility": true,
         "output": "declarations/main"
+      }
+    },
+    "ledger": {
+      "type": "custom",
+      "wasm": "declarations/ledger/ledger.wasm",
+      "candid": "declarations/ledger/ledger.private.did",
+      "remote": {
+        "candid": "declarations/ledger/ledger.public.did",
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
       }
     },
     "seed": {
@@ -56,6 +67,6 @@
       "args": ""
     }
   },
-  "dfx": "0.14.1",
+  "dfx": "0.14.3",
   "output_env_file": ".env"
 }

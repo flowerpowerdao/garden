@@ -21,3 +21,4 @@ dist/
 .env
 
 .mops
+set-deploy-env.zsh
