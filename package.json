@@ -18,6 +18,7 @@
     "deploy:ethflower": "dfx deploy ethflower --argument \"$(cat ethflower-initArgs.did)\" --mode reinstall --yes && dfx canister call ethflower initMint && dfx canister call ethflower shuffleTokensForSale && dfx canister call ethflower airdropTokens && dfx canister call ethflower enableSale",
     "deploy:icpflower": "dfx deploy icpflower --argument \"$(cat icpflower-initArgs.did)\" --mode reinstall --yes && dfx canister call icpflower initMint && dfx canister call icpflower shuffleTokensForSale && dfx canister call icpflower airdropTokens && dfx canister call icpflower enableSale",
     "deploy-ic": "dfx deploy main --argument \"$(cat initArgs.ic.did)\" --network ic",
+    "mint": ". ./set-deploy-env.zsh && tsx ./test/mint.ts",
     "serve": "cd frontend && vite --port 3000",
     "build": "cd frontend && vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json",

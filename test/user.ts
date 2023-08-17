@@ -19,7 +19,7 @@ export class User extends FakeUser {
   ethFlowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.ethflower.local);
   icpFlowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.icpflower.local);
 
-  async mintFlower(actor: _SERVICE_EXT, canisterId: string) {
+  async mintFlower(actor: _SERVICE_EXT, canisterId: string, to: string = this.accountId) {
     let minter = new User('minter');
     let tokens = await actor.tokens(minter.accountId);
 
@@ -30,7 +30,7 @@ export class User extends FakeUser {
     await actor.transfer({
       amount: 1n,
       from: { address: minter.accountId },
-      to: { address: this.accountId },
+      to: { address: to },
       memo: [],
       notify: false,
       subaccount: [],
@@ -38,15 +38,15 @@ export class User extends FakeUser {
     });
   }
 
-  async mintBTCFlower() {
-    await this.mintFlower(new User('minter').btcFlowerActor, canisterIds.btcflower.local);
+  async mintBTCFlower(to?: string) {
+    await this.mintFlower(new User('minter').btcFlowerActor, canisterIds.btcflower.local, to);
   }
 
-  async mintETHFlower() {
-    await this.mintFlower(new User('minter').ethFlowerActor, canisterIds.ethflower.local);
+  async mintETHFlower(to?: string) {
+    await this.mintFlower(new User('minter').ethFlowerActor, canisterIds.ethflower.local, to);
   }
 
-  async mintICPFlower() {
-    await this.mintFlower(new User('minter').icpFlowerActor, canisterIds.icpflower.local);
+  async mintICPFlower(to?: string) {
+    await this.mintFlower(new User('minter').icpFlowerActor, canisterIds.icpflower.local, to);
   }
 }

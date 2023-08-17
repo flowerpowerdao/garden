@@ -7,7 +7,7 @@ const config = {
   mode: "jit",
   content: [
     "index.html",
-    "./src/**/*.{html,js,svelte,ts}",
+    "./components/**/*.{html,js,svelte,ts}",
     "./node_modules/fpdao-ui/**/*",
   ],
   theme: {
