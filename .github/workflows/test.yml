@@ -29,6 +29,9 @@ jobs:
       - name: git submodule update
         run: git submodule update --init
 
+      - name: debug
+        run: echo $(dfx ledger account-id)
+
       - name: create set-deploy-env.zsh
         run: |
             touch set-deploy-env.zsh
@@ -36,5 +39,5 @@ jobs:
 
       - name: test
         run: |
-            npm start
+            npm run replica
             npm test
