@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start": "npm run replica && npm run create-canisters && npm run deploy && npm run mint && npm run serve",
-    "replica": "dfx stop && dfx start --clean --background",
+    "start": "npm run replica && npm run serve",
+    "replica": "dfx stop && dfx start --clean --background && npm run create-canisters && npm run deploy && npm run mint",
     "build-power-equalizer": "cd power-equalizer && dfx build staging --check",
     "create-canisters": "npm run create:main && npm run create:ledger && npm run create:seed && npm run create:btcflower && npm run create:ethflower && npm run create:icpflower",
     "create:main": "dfx canister create main --specified-id 2222s-4iaaa-aaaaf-ax2uq-cai",

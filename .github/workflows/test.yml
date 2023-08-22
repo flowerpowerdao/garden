@@ -31,5 +31,6 @@ jobs:
 
       - name: test
         run: |
+            touch set-deploy-env.zsh
             npm start
             npm test
