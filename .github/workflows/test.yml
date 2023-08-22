@@ -29,8 +29,12 @@ jobs:
       - name: git submodule update
         run: git submodule update --init
 
-      - name: test
+      - name: create set-deploy-env.zsh
         run: |
             touch set-deploy-env.zsh
+            echo export 'WALLET_ADDRESS="e82226d3101bd8525111e2c6501a79365f2484d82d3f2be96269b78fe200eeaa"'
+
+      - name: test
+        run: |
             npm start
             npm test
