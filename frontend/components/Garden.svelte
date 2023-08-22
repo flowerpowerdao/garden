@@ -1,8 +1,11 @@
 <script lang="ts">
-  import "fpdao-ui/styles/global.css";
   import { authStore, store } from '../store';
+  import UnstakedFlower from './UnstakedFlower.svelte';
 
   let loading = false;
+  let btcFlowerTokens: Uint32Array | number[] = [];
+  let ethFlowerTokens: Uint32Array | number[] = [];
+  let icpFlowerTokens: Uint32Array | number[] = [];
 
   $: if ($authStore.isAuthed) {
     load();
@@ -13,20 +16,40 @@
       return;
     }
     loading = true;
-    let tokens = await $store.btcFlowerActor.tokens($authStore.accountId);
-    console.log(tokens);
+    let res = await $store.btcFlowerActor.tokens($authStore.accountId);
+    if ('ok' in res) {
+      btcFlowerTokens = res.ok;
+    }
+
+    res = await $store.ethFlowerActor.tokens($authStore.accountId);
+    if ('ok' in res) {
+      ethFlowerTokens = res.ok;
+    }
+
+    res = await $store.icpFlowerActor.tokens($authStore.accountId);
+    if ('ok' in res) {
+      icpFlowerTokens = res.ok;
+    }
+
+    let r = await $store.gardenActor.getUserNeurons();
+    console.log(r)
   }
 </script>
 
 
-<div
-  class="py-10 lg:py-0 lg:flex lg:items-center lg:pt-40 lg:pb-8 lg:justify-between lg:mx-[11%] lg:flex-col"
->
-  1111
-</div>
+<div class="py-20 text-4xl text-center">FPDAO Garden</div>
 
-<div
-  class="flex flex-col justify-center gap-12 text-center max-w-6xl mb-40 dark:text-white p-10"
->
-  Garden!
+<div class="px-10">
+  <div class="py-10 text-3xl">Flowers in your wallet</div>
+  <div class="flex gap-20 flex-wrap">
+    {#each btcFlowerTokens as token}
+      <UnstakedFlower collection="btcFlower" tokenIndex={token}></UnstakedFlower>
+    {/each}
+    {#each ethFlowerTokens as token}
+      <UnstakedFlower collection="ethFlower" tokenIndex={token}></UnstakedFlower>
+    {/each}
+    {#each icpFlowerTokens as token}
+      <UnstakedFlower collection="icpFlower" tokenIndex={token}></UnstakedFlower>
+    {/each}
+  </div>
 </div>

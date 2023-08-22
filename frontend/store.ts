@@ -1,24 +1,31 @@
 import { writable, get } from "svelte/store";
 import { AuthStore, createAuthStore } from 'fpdao-ui/auth-store';
 import {
+  main as garden,
+  createActor as createGardenActor,
+  idlFactory as gardenIdlFactory,
+  canisterId as gardenCanisterId,
+} from "../declarations/main";
+import {
   staging as ext,
   createActor as createExtActor,
   idlFactory as extIdlFactory,
 } from "../declarations/ext";
-
-let btcFlowerCanisterId = "pk6rk-6aaaa-aaaae-qaazq-cai";
-let ethFlowerCanisterId = "dhiaa-ryaaa-aaaae-qabva-cai";
-let icpFlowerCanisterId = "4ggk4-mqaaa-aaaae-qad6q-cai";
+import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId } from './canister-ids';
 
 export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://icp0.io";
 
 type State = {
+  gardenActor: typeof garden;
   btcFlowerActor: typeof ext;
   ethFlowerActor: typeof ext;
   icpFlowerActor: typeof ext;
 };
 
 const defaultState: State = {
+  gardenActor: createGardenActor(gardenCanisterId, {
+    agentOptions: { host: HOST },
+  }),
   btcFlowerActor: createExtActor(btcFlowerCanisterId, {
     agentOptions: { host: HOST },
   }),
@@ -43,12 +50,14 @@ export const createStore = (authStore: AuthStore) => {
           return {...defaultState};
         });
       } else {
+        let gardenActor = await authStore.createActor<typeof garden>(gardenCanisterId, gardenIdlFactory);
         let btcFlowerActor = await authStore.createActor<typeof ext>(btcFlowerCanisterId, extIdlFactory);
         let ethFlowerActor = await authStore.createActor<typeof ext>(ethFlowerCanisterId, extIdlFactory);
         let icpFlowerActor = await authStore.createActor<typeof ext>(icpFlowerCanisterId, extIdlFactory);
         update((prevState) => {
           return {
             ...prevState,
+            gardenActor,
             btcFlowerActor,
             ethFlowerActor,
             icpFlowerActor,

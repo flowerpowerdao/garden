@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "npm run replica && npm run create-canisters && npm run deploy && npm run serve",
+    "start": "npm run replica && npm run create-canisters && npm run deploy && npm run mint && npm run serve",
     "replica": "dfx stop && dfx start --clean --background",
     "build-power-equalizer": "cd power-equalizer && dfx build staging --check",
     "create-canisters": "npm run create:main && npm run create:ledger && npm run create:seed && npm run create:btcflower && npm run create:ethflower && npm run create:icpflower",
