@@ -2,11 +2,14 @@
   import { setContext } from 'svelte';
   import { authStore, store } from '../store';
   import UnstakedFlower from './UnstakedFlower.svelte';
+  import StakedFlower from './StakedFlower.svelte';
+  import { Neuron } from 'declarations/main/main.did';
 
   type Collection = 'btcFlower' | 'ethFlower' | 'icpFlower';
   type Flower = {
     collection: Collection;
     tokenIndex: number;
+    neuron?: Neuron;
   };
 
   let loading = false;
@@ -45,9 +48,11 @@
     let userNeurons = await $store.gardenActor.getUserNeurons();
     for (let neuron of userNeurons) {
       for (let flower of neuron.flowers) {
+        console.log(neuron)
         stakedFlowers.push({
           collection: Object.keys(flower.collection)[0].replace('BTC', 'btc').replace('ETH', 'eth').replace('ICP', 'icp') as Collection,
           tokenIndex: Number(flower.tokenIndex),
+          neuron: neuron,
         });
       }
     }
@@ -73,7 +78,7 @@
   <div class="py-10 mt-7 text-3xl">Staked Flowers</div>
   <div class="flex gap-20 flex-wrap">
     {#each stakedFlowers as flower}
-      <UnstakedFlower collection={flower.collection} tokenIndex={flower.tokenIndex}></UnstakedFlower>
+      <StakedFlower collection={flower.collection} tokenIndex={flower.tokenIndex} neuron={flower.neuron}></StakedFlower>
     {/each}
   </div>
 </div>
