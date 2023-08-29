@@ -81,7 +81,8 @@
           <div>{error}</div>
         </div>
       {:else if success}
-        <div class="text-xl flex flex-col gap-4">
+        <div class="text-xl text-green-700">
+          Success!
         </div>
       {:else}
         <div class="text-xl flex flex-col gap-4">

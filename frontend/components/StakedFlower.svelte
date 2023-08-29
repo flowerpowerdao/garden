@@ -5,15 +5,21 @@
   import FlowerPreview from './FlowerPreview.svelte';
   import { Neuron } from 'declarations/main/main.did';
   import DissolveModal from './DissolveModal.svelte';
+  import WithdrawModal from './WithdrawModal.svelte';
 
   export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
   export let tokenIndex: number;
   export let neuron: Neuron;
 
   let dissolveModal: DissolveModal;
+  let withdrawModal: WithdrawModal;
 
   let toggleDissolveModal = () => {
     dissolveModal.toggleModal();
+  };
+
+  let toggleWithdrawModal = () => {
+    withdrawModal.toggleModal();
   };
 
   let state = 'staked';
@@ -37,12 +43,14 @@
 
 <FlowerPreview {collection} {tokenIndex}>
   <div class="flex flex-col gap-2">
+    <div class="mb-1"></div>
+
     <div>{status}</div>
     <div>Balance: <span class="font-bold">{(Number(neuron.rewards) / 1e8).toFixed(3)}</span> SEED</div>
 
-    <div class="mb-1"></div>
+    <div class="mb-2"></div>
 
-    <Button on:click={toggleDissolveModal}>Withdraw</Button>
+    <Button on:click={toggleWithdrawModal}>Withdraw</Button>
     {#if state === 'staked'}
       <Button on:click={toggleDissolveModal}>Dissolve</Button>
     {:else if state === 'dissolving'}
@@ -54,3 +62,4 @@
 </FlowerPreview>
 
 <DissolveModal {neuron} bind:this={dissolveModal}></DissolveModal>
+<WithdrawModal {neuron} bind:this={withdrawModal}></WithdrawModal>
