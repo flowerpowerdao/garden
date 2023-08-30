@@ -8,6 +8,7 @@
   import { Neuron } from 'declarations/main/main.did';
 
   export let neuron: Neuron;
+  export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
 
   let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
 

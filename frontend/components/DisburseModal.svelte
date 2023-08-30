@@ -7,6 +7,7 @@
   import { authStore, store } from '../store';
   import { Neuron } from 'declarations/main/main.did';
   import { Principal } from '@dfinity/principal';
+  import { getTokenName } from '../utils';
 
   export let neuron: Neuron;
   export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
@@ -31,7 +32,7 @@
     reset();
   }
 
-  async function withdraw() {
+  async function disburse() {
     loading = true;
 
     let principal: Principal;
@@ -43,7 +44,7 @@
       return;
     }
 
-    let res = await $store.gardenActor.claimRewards(neuron.id, { owner: principal, subaccount: [] });
+    let res = await $store.gardenActor.disburseNeuron(neuron.id, { owner: principal, subaccount: [] });
     if ('err' in res) {
       error = res.err;
       return;
@@ -54,7 +55,7 @@
 </script>
 
 {#if modalOpen}
-  <Modal title="Withdraw" {toggleModal}>
+  <Modal title="Disburse" {toggleModal}>
     <div class="flex gap-3 flex-col flex-1 justify-center items-center">
       {#if error}
         <div class="text-red-700 text-xl flex flex-col grow">
@@ -68,14 +69,14 @@
       {:else}
         <div class="text-xl flex flex-col gap-2 max-w-full">
           <div class="mb-5">Connected wallet principal: <b>{$authStore.principal.toText()}</b></div>
-          <div>Withdraw SEED tokens to:</div>
+          <div>Withdraw <b>{(Number(neuron.rewards) / 1e8).toFixed(3)} SEED</b> tokens and <b>{getTokenName(collection, Number(neuron.flowers[0].tokenIndex))}</b> NFT to:</div>
           <input class="border-2 border-black p-2" placeholder="principal..." bind:value={principalText}>
         </div>
-        <Button style="w-auto px-20 py-8 h-10 mt-10 rounded-[55px]" disabled={loading || !principalText} on:click={withdraw}>
+        <Button style="w-auto px-20 py-8 h-10 mt-10 rounded-[55px]" disabled={loading || !principalText} on:click={disburse}>
           {#if loading}
             <Loader {loading}></Loader>
           {:else}
-            Withdraw {(Number(neuron.rewards) / 1e8).toFixed(3)} SEED
+            Disburse
           {/if}
         </Button>
       {/if}

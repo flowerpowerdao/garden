@@ -309,9 +309,11 @@ module {
           };
 
           // withdraw remaining SEED rewards
-          let res = await claimRewards(userId, neuronId, toAccount);
-          if (res != #ok) {
-            return res;
+          if (neuron.rewards != 0) {
+            let res = await claimRewards(userId, neuronId, toAccount);
+            if (res != #ok) {
+              return res;
+            };
           };
 
           // withdraw all flowers

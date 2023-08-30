@@ -6,6 +6,7 @@
   import { Neuron } from 'declarations/main/main.did';
   import DissolveModal from './DissolveModal.svelte';
   import WithdrawModal from './WithdrawModal.svelte';
+  import DisburseModal from './DisburseModal.svelte';
 
   export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
   export let tokenIndex: number;
@@ -13,6 +14,7 @@
 
   let dissolveModal: DissolveModal;
   let withdrawModal: WithdrawModal;
+  let disburseModal: DisburseModal;
 
   let toggleDissolveModal = () => {
     dissolveModal.toggleModal();
@@ -20,6 +22,10 @@
 
   let toggleWithdrawModal = () => {
     withdrawModal.toggleModal();
+  };
+
+  let toggleDisburseModal = () => {
+    disburseModal.toggleModal();
   };
 
   let state = 'staked';
@@ -56,10 +62,11 @@
     {:else if state === 'dissolving'}
       <Button on:click={toggleDissolveModal}>Restake</Button>
     {:else if state === 'dissolved'}
-      <Button on:click={toggleDissolveModal} disabled={state !== 'dissolved'}>Disburse</Button>
+      <Button on:click={toggleDisburseModal}>Disburse</Button>
     {/if}
   </div>
 </FlowerPreview>
 
-<DissolveModal {neuron} bind:this={dissolveModal}></DissolveModal>
-<WithdrawModal {neuron} bind:this={withdrawModal}></WithdrawModal>
+<DissolveModal {neuron} {collection} bind:this={dissolveModal}></DissolveModal>
+<WithdrawModal {neuron} {collection} bind:this={withdrawModal}></WithdrawModal>
+<DisburseModal {neuron} {collection} bind:this={disburseModal}></DisburseModal>
