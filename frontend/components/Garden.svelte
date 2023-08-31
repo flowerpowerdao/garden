@@ -95,7 +95,7 @@
     <div class="py-10 text-3xl">Flowers in Garden</div>
     <div class="flex gap-20 flex-wrap">
       {#each stakedFlowers as flower}
-        <StakedFlower collection={flower.collection} tokenIndex={flower.tokenIndex} neuron={flower.neuron}></StakedFlower>
+        <StakedFlower neuron={flower.neuron}></StakedFlower>
       {:else}
         <div class="text-xl text-gray-500">No flowers in Garden</div>
       {/each}

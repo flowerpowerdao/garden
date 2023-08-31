@@ -1,23 +1,31 @@
 <script lang="ts">
-  import Button from 'fpdao-ui/components/Button.svelte';
   import { formatDistanceToNowStrict } from 'date-fns';
+  import Button from 'fpdao-ui/components/Button.svelte';
 
   import FlowerPreview from './FlowerPreview.svelte';
-  import { Neuron } from 'declarations/main/main.did';
   import DissolveModal from './DissolveModal.svelte';
+  import RestakeModal from './RestakeModal.svelte';
   import WithdrawModal from './WithdrawModal.svelte';
   import DisburseModal from './DisburseModal.svelte';
+  import { getNeuronCollection, getNeuronTokenIndex } from '../utils';
+  import { Neuron } from 'declarations/main/main.did';
 
-  export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
-  export let tokenIndex: number;
   export let neuron: Neuron;
 
+  let collection = getNeuronCollection(neuron);
+  let tokenIndex = getNeuronTokenIndex(neuron);
+
   let dissolveModal: DissolveModal;
+  let restakeModal: RestakeModal;
   let withdrawModal: WithdrawModal;
   let disburseModal: DisburseModal;
 
   let toggleDissolveModal = () => {
     dissolveModal.toggleModal();
+  };
+
+  let toggleRestakeModal = () => {
+    restakeModal.toggleModal();
   };
 
   let toggleWithdrawModal = () => {
@@ -60,7 +68,7 @@
     {#if state === 'staked'}
       <Button on:click={toggleDissolveModal}>Dissolve</Button>
     {:else if state === 'dissolving'}
-      <Button on:click={toggleDissolveModal}>Restake</Button>
+      <Button on:click={toggleRestakeModal}>Restake</Button>
     {:else if state === 'dissolved'}
       <Button on:click={toggleDisburseModal}>Disburse</Button>
     {/if}
@@ -68,5 +76,6 @@
 </FlowerPreview>
 
 <DissolveModal {neuron} {collection} bind:this={dissolveModal}></DissolveModal>
+<RestakeModal {neuron} bind:this={restakeModal}></RestakeModal>
 <WithdrawModal {neuron} {collection} bind:this={withdrawModal}></WithdrawModal>
 <DisburseModal {neuron} {collection} bind:this={disburseModal}></DisburseModal>

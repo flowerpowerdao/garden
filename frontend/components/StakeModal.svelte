@@ -1,10 +1,10 @@
 <script lang="ts">
+  import { getContext } from 'svelte';
   import Button from 'fpdao-ui/components/Button.svelte';
   import Modal from 'fpdao-ui/components/Modal.svelte';
   import Loader from 'fpdao-ui/components/Loader.svelte';
   import { authStore, store } from '../store';
   import { getCollectionCanisterId, toAccountId, tokenIdentifier } from '../utils';
-  import { getContext } from 'svelte';
 
   export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
   export let tokenIndex: number;

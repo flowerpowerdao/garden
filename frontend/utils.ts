@@ -1,7 +1,9 @@
 import { Principal } from "@dfinity/principal";
 import { AccountIdentifier, SubAccount } from "@dfinity/nns";
 import { Account } from '../declarations/icrc1/icrc1.did';
+import { Neuron } from '../declarations/main/main.did';
 import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId } from './canister-ids';
+import { Collection } from './types';
 
 export function feeOf(amount: bigint, fee: bigint) {
   return amount * fee / 100_000n;
@@ -85,3 +87,11 @@ export let getCollectionCanisterId = (collection: 'btcFlower' | 'ethFlower' | 'i
   }
   return canisterId;
 };
+
+export let getNeuronCollection = (neuron: Neuron): Collection => {
+  return Object.keys(neuron.flowers[0].collection)[0].replace('BTC', 'btc').replace('ETH', 'eth').replace('ICP', 'icp') as Collection;
+}
+
+export let getNeuronTokenIndex = (neuron: Neuron): number => {
+  return Number(neuron.flowers[0].tokenIndex);
+}

@@ -1,0 +1,1 @@
+export type Collection = 'btcFlower' | 'ethFlower' | 'icpFlower';
