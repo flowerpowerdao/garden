@@ -3,7 +3,8 @@
   "scripts": {
     "start": "npm run vite",
     "vite": "vite --port 3000",
-    "build": "vite build"
+    "build": "vite build",
+    "postinstall": "cd frontend && npm install"
   },
   "dependencies": {
     "@dfinity/agent": "^0.18.1",

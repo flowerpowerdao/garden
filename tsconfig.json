@@ -14,9 +14,9 @@
         "baseUrl": "."
     },
     "include": [
-        "src/**/*.d.ts",
-        "src/**/*.ts",
-        "src/**/*.js",
-        "src/**/*.svelte"
+        "frontend/**/*.d.ts",
+        "frontend/**/*.ts",
+        "frontend/**/*.js",
+        "frontend/**/*.svelte"
     ]
 }
