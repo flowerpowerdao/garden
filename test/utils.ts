@@ -5,6 +5,7 @@ import { User } from "./user";
 import canisterIds from '../.dfx/local/canister_ids.json';
 import { AccountIdentifier, SubAccount } from "@dfinity/nns";
 import {Account} from '../declarations/icrc1/icrc1.did';
+import {Neuron} from '../declarations/main/main.did';
 
 export function feeOf(amount: bigint, fee: bigint) {
   return amount * fee / 100_000n;
@@ -85,11 +86,15 @@ export let toAccountId = (account: Account) => {
   }
 };
 
-export function rewardsForVotingPower(votingPower: number | bigint, totalVotingPower: number | bigint, elapsedTime: bigint) {
-  let totalRewardsPerYear = 1_000_000_00000000n;
-  let YEAR = 86_400_000_000_000n * 365n;
+export function rewardsForNeuron(neuron: Neuron, elapsedTime: bigint) {
+  if (!elapsedTime) {
+    return 0n;
+  }
+  let DAY = 86_400_000_000_000n;
   let BIG_NUMBER = 1_000_000_000_000_000_000_000n;
-  let rewardsForElapsedTime = BIG_NUMBER * totalRewardsPerYear / YEAR * elapsedTime / BIG_NUMBER;
-  let rewards = BIG_NUMBER * BigInt(votingPower) / BigInt(totalVotingPower) * rewardsForElapsedTime / BIG_NUMBER;
+  let dailyRewards = neuron.flowers.reduce((acc, flower) => {
+    return 'BTCFlower' in flower.collection ? acc + 200000000n : acc + 100000000n;
+  }, 0n);
+  let rewards = BIG_NUMBER * dailyRewards * DAY / elapsedTime / BIG_NUMBER;
   return rewards;
 }

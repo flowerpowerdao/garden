@@ -5,7 +5,7 @@
   import { getContext } from 'svelte';
 
   import { store } from '../store';
-  import { Neuron } from 'declarations/main/main.did';
+  import { Neuron } from '../../declarations/main/main.did';
 
   export let neuron: Neuron;
   export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';

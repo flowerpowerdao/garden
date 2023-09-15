@@ -22,7 +22,8 @@
     "serve": "cd frontend && vite --port 3000",
     "build": "cd frontend && vite build",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "test": "vitest --threads false --reporter verbose test/*"
+    "test": "vitest --threads false --reporter verbose --bail 1 test/*",
+    "postinstall": "cd frontend && npm install"
   },
   "dependencies": {
     "@dfinity/agent": "^0.18.1",

@@ -70,7 +70,6 @@ module {
     };
 
     // PUBLIC
-    let YEAR = DAY * 365;
     let BIG_NUMBER = 1_000_000_000_000_000_000_000;
     var timerId = 0;
 
@@ -83,20 +82,14 @@ module {
 
     func _mintRewards() : async () {
       let now = Time.now();
-      let totalVotingPower = getTotalVotingPower();
 
       for (neuron in neurons.vals()) {
         switch (neuron.dissolveState) {
           // not dissolving
           case (#DissolveDelay(_)) {
-            // calculate rewards for neuron based on voting power and elapsed time
             let elapsedTime = Int.abs(now - neuron.prevRewardTime);
-            let totalRewardsForElapsedTime = BIG_NUMBER * initArgs.totalRewardsPerYear / YEAR * elapsedTime / BIG_NUMBER;
-            let votingPower = getNeuronVotingPower(neuron.id);
-            let rewards = BIG_NUMBER * votingPower / totalVotingPower * totalRewardsForElapsedTime / BIG_NUMBER;
-
-            Debug.print("votingPower " # debug_show(votingPower));
-            Debug.print("rewards " # debug_show(rewards));
+            let dailyRewards = getNeuronDailyRewards(neuron.id);
+            let rewards = BIG_NUMBER * dailyRewards * DAY / elapsedTime / BIG_NUMBER;
 
             // add rewards to neuron
             neurons.put(neuron.id, {
@@ -131,6 +124,25 @@ module {
         };
       };
       false;
+    };
+
+    public func getNeuronDailyRewards(neuronId : Types.NeuronId) : Nat {
+      let ?neuron = neurons.get(neuronId) else Debug.trap("neuron not found");
+      var dailyRewards = 0;
+
+      for (flower in neuron.flowers.vals()) {
+        dailyRewards += getFlowerDailyRewards(flower);
+      };
+
+      dailyRewards;
+    };
+
+    public func getFlowerDailyRewards(flower : Types.Flower) : Nat {
+      switch (flower.collection) {
+        case (#BTCFlower) initArgs.dailyRewards.btcFlower;
+        case (#ETHFlower) initArgs.dailyRewards.ethFlower;
+        case (#ICPFlower) initArgs.dailyRewards.icpFlower;
+      };
     };
 
     public func getTotalVotingPower() : Nat {

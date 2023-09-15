@@ -41,6 +41,10 @@ actor class(selfId : Principal, initArgs : Types.InitArgs) {
     garden.getUserNeurons(caller);
   };
 
+  public query ({caller}) func getUserVotingPower() : async Nat {
+    garden.getUserVotingPower(caller);
+  };
+
   public shared ({caller}) func dissolveNeuron(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
     garden.dissolveNeuron(caller, neuronId);
   };

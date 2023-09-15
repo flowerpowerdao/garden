@@ -5,7 +5,7 @@
   import { getContext } from 'svelte';
 
   import { authStore, store } from '../store';
-  import { Neuron } from 'declarations/main/main.did';
+  import { Neuron } from '../../declarations/main/main.did';
   import { Principal } from '@dfinity/principal';
   import { getTokenName } from '../utils';
 

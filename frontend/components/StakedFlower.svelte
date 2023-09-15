@@ -8,7 +8,7 @@
   import WithdrawModal from './WithdrawModal.svelte';
   import DisburseModal from './DisburseModal.svelte';
   import { getNeuronCollection, getNeuronTokenIndex } from '../utils';
-  import { Neuron } from 'declarations/main/main.did';
+  import { Neuron } from '../../declarations/main/main.did';
 
   export let neuron: Neuron;
 

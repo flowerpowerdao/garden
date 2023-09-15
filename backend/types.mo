@@ -48,7 +48,11 @@ module {
   };
 
   public type InitArgs = {
-    totalRewardsPerYear : Nat;
+    dailyRewards : {
+      btcFlower : Nat;
+      ethFlower : Nat;
+      icpFlower : Nat;
+    };
     stakePeriod : Duration;
     rewardInterval : Duration;
   };

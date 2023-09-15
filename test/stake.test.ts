@@ -1,13 +1,12 @@
 import { describe, test, expect } from 'vitest';
 import { execSync } from 'child_process';
 import { User } from './user';
-import { rewardsForVotingPower, toAccountId, tokenIdentifier } from './utils';
+import { rewardsForNeuron, toAccountId, tokenIdentifier } from './utils';
 import canisterIds from '../.dfx/local/canister_ids.json';
 
 describe('staking', () => {
   let user = new User;
   let nonce = 1;
-  let totalVotingPower = 3;
 
   test('deploy', async () => {
     // execSync('npm run deploy');
@@ -71,14 +70,22 @@ describe('staking', () => {
     expect(neurons).toHaveLength(1);
   });
 
+  test('check rewards before mint', async () => {
+    let neuron = (await user.mainActor.getUserNeurons())[0];
+    expect(neuron.prevRewardTime).toBe(neuron.stakedAt);
+    expect(neuron.rewards).toBe(0n);
+  });
+
   test('wait for rewards', async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000 * 5));
+    await new Promise(resolve => setTimeout(resolve, 1000 * 7));
   });
 
   test('check rewards', async () => {
     let neuron = (await user.mainActor.getUserNeurons())[0];
-    let rewards = rewardsForVotingPower(3, totalVotingPower, neuron.prevRewardTime - neuron.stakedAt)
+    let rewards = rewardsForNeuron(neuron, neuron.prevRewardTime - neuron.stakedAt)
+    expect(neuron.rewards).toBeGreaterThan(0n);
     expect(neuron.rewards).toBeGreaterThan(rewards - 2n);
+    expect(neuron.rewards).toBeLessThan(rewards + 2n);
   });
 
   test('try to disburse not dissolving neuron', async () => {
@@ -139,13 +146,14 @@ describe('staking', () => {
     });
 
     test('wait for rewards', async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000 * 5));
+      await new Promise(resolve => setTimeout(resolve, 1000 * 7));
     });
 
     test('check rewards', async () => {
       let neuron = (await user.mainActor.getUserNeurons())[0];
-      let rewards = rewardsForVotingPower(3, totalVotingPower, neuron.prevRewardTime - neuron.stakedAt);
+      let rewards = rewardsForNeuron(neuron, neuron.prevRewardTime - neuron.stakedAt);
       expect(neuron.rewards).toBeGreaterThan(rewards - 2n);
+      expect(neuron.rewards).toBeLessThan(rewards + 2n);
     });
   });
 

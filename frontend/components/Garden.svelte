@@ -3,7 +3,7 @@
   import { authStore, store } from '../store';
   import UnstakedFlower from './UnstakedFlower.svelte';
   import StakedFlower from './StakedFlower.svelte';
-  import { Neuron } from 'declarations/main/main.did';
+  import { Neuron } from '../../declarations/main/main.did';
   import Loader from 'fpdao-ui/components/Loader.svelte';
 
   type Collection = 'btcFlower' | 'ethFlower' | 'icpFlower';
@@ -33,7 +33,6 @@
 
     unstakedFlowers = [];
     stakedFlowers = [];
-
     let loadUnstakedBtcFlowers = async () => {
       let res = await $store.btcFlowerActor.tokens($authStore.accountId);
       if ('ok' in res) {
@@ -89,7 +88,9 @@
 <div class="py-20 text-4xl text-center">FPDAO Garden</div>
 
 <div class="px-10 pb-40">
-  {#if gardenLoading}
+  {#if !isAuthed}
+    <div class="text-xl text-gray-500">Connect your wallet to see your garden</div>
+  {:else if gardenLoading}
     <div class="flex items-center gap-3 py-10 mt-7 text-3xl"><Loader></Loader> Loading...</div>
   {:else}
     <div class="py-10 text-3xl">Flowers in Garden</div>
