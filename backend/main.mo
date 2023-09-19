@@ -42,7 +42,6 @@ actor class(selfId : Principal, initArgs : Types.InitArgs) {
   };
 
   public query ({caller}) func getUserVotingPower(userId : Principal) : async Nat {
-    assert(caller == Principal.fromText("fqfmg-4iaaa-aaaae-qabaa-cai")); // fpdao canister
     garden.getUserVotingPower(userId);
   };
 

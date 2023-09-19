@@ -1,5 +1,5 @@
 (
-  principal "2222s-4iaaa-aaaaf-ax2uq-cai",
+  principal "afcvu-dyaaa-aaaap-qboqq-cai",
   record {
     dailyRewards = record {
       btcFlower = 2_00000000; // 2 SEED
