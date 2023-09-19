@@ -55,7 +55,7 @@
     }
 
     let loadStakedFlowers = async () => {
-      let userNeurons = await $store.gardenActor.getUserNeurons();
+      let userNeurons = await $store.gardenActor.getCallerNeurons();
       for (let neuron of userNeurons) {
         for (let flower of neuron.flowers) {
           console.log(neuron)
