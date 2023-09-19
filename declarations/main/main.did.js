@@ -7,9 +7,13 @@ export const idlFactory = ({ IDL }) => {
     'seconds' : IDL.Nat,
   });
   const InitArgs = IDL.Record({
-    'totalRewardsPerYear' : IDL.Nat,
     'rewardInterval' : Duration,
     'stakePeriod' : Duration,
+    'dailyRewards' : IDL.Record({
+      'btcFlower' : IDL.Nat,
+      'icpFlower' : IDL.Nat,
+      'ethFlower' : IDL.Nat,
+    }),
   });
   const NeuronId = IDL.Nat;
   const Account = IDL.Record({
@@ -49,8 +53,9 @@ export const idlFactory = ({ IDL }) => {
     'claimRewards' : IDL.Func([NeuronId, Account], [Result_1], []),
     'disburseNeuron' : IDL.Func([NeuronId, Account], [Result_1], []),
     'dissolveNeuron' : IDL.Func([NeuronId], [Result_1], []),
+    'getCallerNeurons' : IDL.Func([], [IDL.Vec(Neuron)], ['query']),
     'getStakingAccount' : IDL.Func([IDL.Nat16], [Account], ['query']),
-    'getUserNeurons' : IDL.Func([], [IDL.Vec(Neuron)], ['query']),
+    'getUserVotingPower' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
     'restake' : IDL.Func([NeuronId], [Result_1], []),
     'stake' : IDL.Func([IDL.Nat16], [Result], []),
   });
@@ -65,9 +70,13 @@ export const init = ({ IDL }) => {
     'seconds' : IDL.Nat,
   });
   const InitArgs = IDL.Record({
-    'totalRewardsPerYear' : IDL.Nat,
     'rewardInterval' : Duration,
     'stakePeriod' : Duration,
+    'dailyRewards' : IDL.Record({
+      'btcFlower' : IDL.Nat,
+      'icpFlower' : IDL.Nat,
+      'ethFlower' : IDL.Nat,
+    }),
   });
   return [IDL.Principal, InitArgs];
 };

@@ -3,8 +3,9 @@ type anon_class_10_1 =
    claimRewards: (NeuronId, Account) -> (Result_1);
    disburseNeuron: (NeuronId, Account) -> (Result_1);
    dissolveNeuron: (NeuronId) -> (Result_1);
+   getCallerNeurons: () -> (vec Neuron) query;
    getStakingAccount: (nat16) -> (Account) query;
-   getUserNeurons: () -> (vec Neuron) query;
+   getUserVotingPower: (principal) -> (nat) query;
    restake: (NeuronId) -> (Result_1);
    stake: (nat16) -> (Result);
  };
@@ -36,9 +37,13 @@ type Neuron =
  };
 type InitArgs = 
  record {
+   dailyRewards: record {
+                   btcFlower: nat;
+                   ethFlower: nat;
+                   icpFlower: nat;
+                 };
    rewardInterval: Duration;
    stakePeriod: Duration;
-   totalRewardsPerYear: nat;
  };
 type Flower = 
  record {

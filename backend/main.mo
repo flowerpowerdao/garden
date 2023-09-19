@@ -37,12 +37,13 @@ actor class(selfId : Principal, initArgs : Types.InitArgs) {
     garden.restake(caller, neuronId);
   };
 
-  public query ({caller}) func getUserNeurons() : async [Types.Neuron] {
+  public query ({caller}) func getCallerNeurons() : async [Types.Neuron] {
     garden.getUserNeurons(caller);
   };
 
-  public query ({caller}) func getUserVotingPower() : async Nat {
-    garden.getUserVotingPower(caller);
+  public query ({caller}) func getUserVotingPower(userId : Principal) : async Nat {
+    assert(caller == Principal.fromText("fqfmg-4iaaa-aaaae-qabaa-cai")); // fpdao canister
+    garden.getUserVotingPower(userId);
   };
 
   public shared ({caller}) func dissolveNeuron(neuronId : Types.NeuronId) : async Result.Result<(), Text> {

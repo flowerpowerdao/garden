@@ -59,19 +59,19 @@ describe('staking', () => {
   });
 
   test('stake neuron', async () => {
-    expect(await user.mainActor.getUserNeurons()).toHaveLength(0);
+    expect(await user.mainActor.getCallerNeurons()).toHaveLength(0);
     let res = await user.mainActor.stake(nonce);
     expect(res).toHaveProperty('ok');
-    expect(await user.mainActor.getUserNeurons()).toHaveLength(1);
+    expect(await user.mainActor.getCallerNeurons()).toHaveLength(1);
   });
 
   test('get user neurons', async () => {
-    let neurons = await user.mainActor.getUserNeurons();
+    let neurons = await user.mainActor.getCallerNeurons();
     expect(neurons).toHaveLength(1);
   });
 
   test('check rewards before mint', async () => {
-    let neuron = (await user.mainActor.getUserNeurons())[0];
+    let neuron = (await user.mainActor.getCallerNeurons())[0];
     expect(neuron.prevRewardTime).toBe(neuron.stakedAt);
     expect(neuron.rewards).toBe(0n);
   });
@@ -81,7 +81,7 @@ describe('staking', () => {
   });
 
   test('check rewards', async () => {
-    let neuron = (await user.mainActor.getUserNeurons())[0];
+    let neuron = (await user.mainActor.getCallerNeurons())[0];
     let rewards = rewardsForNeuron(neuron, neuron.prevRewardTime - neuron.stakedAt)
     expect(neuron.rewards).toBeGreaterThan(0n);
     expect(neuron.rewards).toBeGreaterThan(rewards - 2n);
@@ -89,30 +89,30 @@ describe('staking', () => {
   });
 
   test('try to disburse not dissolving neuron', async () => {
-    let neuron = (await user.mainActor.getUserNeurons())[0];
+    let neuron = (await user.mainActor.getCallerNeurons())[0];
     let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
     expect(res).toEqual({ err: "neuron is not dissolved yet" });
   });
 
   describe('dissolve', () => {
     test('dissolve neuron', async () => {
-      let neurons = await user.mainActor.getUserNeurons();
+      let neurons = await user.mainActor.getCallerNeurons();
       expect(await user.mainActor.dissolveNeuron(neurons[0].id)).toHaveProperty('ok');
     });
 
     test('check neuron\'s dissolve state', async () => {
-      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let neuron = (await user.mainActor.getCallerNeurons())[0];
       expect(neuron.dissolveState).toHaveProperty('DissolveTimestamp');
     });
 
     let curRewards = 0n;
     test('save current rewards', async () => {
-      let neurons = await user.mainActor.getUserNeurons();
+      let neurons = await user.mainActor.getCallerNeurons();
       curRewards = neurons[0].rewards;
     });
 
     test('try to disburse dissolving but not dissolved neuron', async () => {
-      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let neuron = (await user.mainActor.getCallerNeurons())[0];
       let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
       expect(res).toEqual({err: "neuron is not dissolved yet"});
     });
@@ -122,25 +122,25 @@ describe('staking', () => {
     });
 
     test('check there are no new rewards', async () => {
-      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let neuron = (await user.mainActor.getCallerNeurons())[0];
       expect(neuron.rewards).toBe(curRewards);
     });
   });
 
   test('withdraw rewards', async () => {
     let newUser = new User;
-    let neuron = (await user.mainActor.getUserNeurons())[0];
+    let neuron = (await user.mainActor.getCallerNeurons())[0];
     let res = await user.mainActor.claimRewards(neuron.id, newUser.account);
     expect(res).toHaveProperty('ok');
     expect(await user.seedActor.icrc1_balance_of(newUser.account)).toBe(neuron.rewards);
 
-    neuron = (await user.mainActor.getUserNeurons())[0];
+    neuron = (await user.mainActor.getCallerNeurons())[0];
     expect(neuron.rewards).toBe(0n);
   });
 
   describe('restake', () => {
     test('restake neuron', async () => {
-      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let neuron = (await user.mainActor.getCallerNeurons())[0];
       let res = await user.mainActor.restake(neuron.id);
       expect(res).toHaveProperty('ok');
     });
@@ -150,7 +150,7 @@ describe('staking', () => {
     });
 
     test('check rewards', async () => {
-      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let neuron = (await user.mainActor.getCallerNeurons())[0];
       let rewards = rewardsForNeuron(neuron, neuron.prevRewardTime - neuron.stakedAt);
       expect(neuron.rewards).toBeGreaterThan(rewards - 2n);
       expect(neuron.rewards).toBeLessThan(rewards + 2n);
@@ -159,13 +159,13 @@ describe('staking', () => {
 
   describe('dissolve again', () => {
     test('dissolve neuron', async () => {
-      let neurons = await user.mainActor.getUserNeurons();
+      let neurons = await user.mainActor.getCallerNeurons();
       expect(await user.mainActor.dissolveNeuron(neurons[0].id)).toHaveProperty('ok');
     });
 
     let curRewards = 0n;
     test('save current rewards', async () => {
-      let neurons = await user.mainActor.getUserNeurons();
+      let neurons = await user.mainActor.getCallerNeurons();
       curRewards = neurons[0].rewards;
     });
 
@@ -174,13 +174,13 @@ describe('staking', () => {
     });
 
     test('check there are no new rewards', async () => {
-      let neuron = (await user.mainActor.getUserNeurons())[0];
+      let neuron = (await user.mainActor.getCallerNeurons())[0];
       expect(neuron.rewards).toBe(curRewards);
     });
   });
 
   test('disburse neuron', async () => {
-    let neuron = (await user.mainActor.getUserNeurons())[0];
+    let neuron = (await user.mainActor.getCallerNeurons())[0];
     let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
     expect(res).toHaveProperty('ok');
 
@@ -190,7 +190,7 @@ describe('staking', () => {
   });
 
   test('neuron should be deleted', async () => {
-    let neurons = await user.mainActor.getUserNeurons();
+    let neurons = await user.mainActor.getCallerNeurons();
     expect(neurons.length).toBe(0);
   });
 });

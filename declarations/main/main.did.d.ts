@@ -17,9 +17,13 @@ export type Duration = { 'nanoseconds' : bigint } |
   { 'seconds' : bigint };
 export interface Flower { 'collection' : Collection, 'tokenIndex' : TokenIndex }
 export interface InitArgs {
-  'totalRewardsPerYear' : bigint,
   'rewardInterval' : Duration,
   'stakePeriod' : Duration,
+  'dailyRewards' : {
+    'btcFlower' : bigint,
+    'icpFlower' : bigint,
+    'ethFlower' : bigint,
+  },
 }
 export interface Neuron {
   'id' : bigint,
@@ -44,8 +48,9 @@ export interface anon_class_10_1 {
   'claimRewards' : ActorMethod<[NeuronId, Account], Result_1>,
   'disburseNeuron' : ActorMethod<[NeuronId, Account], Result_1>,
   'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
+  'getCallerNeurons' : ActorMethod<[], Array<Neuron>>,
   'getStakingAccount' : ActorMethod<[number], Account>,
-  'getUserNeurons' : ActorMethod<[], Array<Neuron>>,
+  'getUserVotingPower' : ActorMethod<[Principal], bigint>,
   'restake' : ActorMethod<[NeuronId], Result_1>,
   'stake' : ActorMethod<[number], Result>,
 }
