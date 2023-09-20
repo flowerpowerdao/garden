@@ -10,6 +10,7 @@
 
   let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
 
+  let dailyReward = 'BTCFlower' in neuron.flowers[0].collection ? 2 : 1;
   let modalOpen = false;
   let loading = false;
   let success = false;
@@ -52,7 +53,7 @@
       {:else}
         <div class="text-xl flex flex-col gap-4">
           <div>You are about to restake your flower.</div>
-          <div>Staked flower will give you X SEED tokens every day.</div>
+          <div>Staked flower will give you {dailyReward} SEED tokens every day.</div>
           <div>If you decide to unstake the flower you have to wait 30 day before you can withdraw the flower.</div>
         </div>
         <Button style="w-auto px-20 py-8 h-10 mt-10 rounded-[55px]" disabled={loading} on:click={restake}>
