@@ -24,3 +24,8 @@ npm start
 ```bash
 npm test
 ```
+
+### Deploy to production
+```
+npm run deploy-ic
+```

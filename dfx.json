@@ -11,9 +11,6 @@
     },
     "assets": {
       "type": "assets",
-      "dependencies": [
-        "frontend"
-      ],
       "frontend": {
         "entrypoint": "frontend/dist/index.html"
       },

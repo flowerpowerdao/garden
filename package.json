@@ -17,7 +17,7 @@
     "deploy:btcflower": "dfx deploy btcflower --argument \"$(cat btcflower-initArgs.did)\" --mode reinstall --yes && dfx canister call btcflower initMint && dfx canister call btcflower shuffleTokensForSale && dfx canister call btcflower airdropTokens && dfx canister call btcflower enableSale",
     "deploy:ethflower": "dfx deploy ethflower --argument \"$(cat ethflower-initArgs.did)\" --mode reinstall --yes && dfx canister call ethflower initMint && dfx canister call ethflower shuffleTokensForSale && dfx canister call ethflower airdropTokens && dfx canister call ethflower enableSale",
     "deploy:icpflower": "dfx deploy icpflower --argument \"$(cat icpflower-initArgs.did)\" --mode reinstall --yes && dfx canister call icpflower initMint && dfx canister call icpflower shuffleTokensForSale && dfx canister call icpflower airdropTokens && dfx canister call icpflower enableSale",
-    "deploy-ic": "dfx deploy main --argument \"$(cat initArgs.ic.did)\" --network ic",
+    "deploy-ic": "dfx deploy main --argument \"$(cat initArgs.ic.did)\" --network ic && dfx deploy assets --network ic",
     "mint": ". ./set-deploy-env.zsh && tsx ./test/mint.ts",
     "serve": "cd frontend && vite --port 3000",
     "build": "cd frontend && vite build",

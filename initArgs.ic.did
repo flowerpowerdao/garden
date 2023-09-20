@@ -1,12 +1,14 @@
 (
-  principal "",
+  principal "afcvu-dyaaa-aaaap-qboqq-cai",
   record {
     dailyRewards = record {
       btcFlower = 2_00000000; // 2 SEED
       ethFlower = 1_00000000; // 1 SEED
       icpFlower = 1_00000000; // 1 SEED
     };
-    stakePeriod = variant { days = 30 };
-    rewardInterval = variant { hours = 24 };
+    // stakePeriod = variant { days = 30 };
+    // rewardInterval = variant { hours = 24 };
+    stakePeriod = variant { seconds = 30 };
+    rewardInterval = variant { seconds = 10 };
   }
 )
