@@ -89,7 +89,7 @@ module {
           case (#DissolveDelay(_)) {
             let elapsedTime = Int.abs(now - neuron.prevRewardTime);
             let dailyRewards = getNeuronDailyRewards(neuron.id);
-            let rewards = BIG_NUMBER * dailyRewards * DAY / elapsedTime / BIG_NUMBER;
+            let rewards = BIG_NUMBER * dailyRewards * elapsedTime / DAY / BIG_NUMBER;
 
             // add rewards to neuron
             neurons.put(neuron.id, {
