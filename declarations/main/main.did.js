@@ -55,6 +55,7 @@ export const idlFactory = ({ IDL }) => {
     'dissolveNeuron' : IDL.Func([NeuronId], [Result_1], []),
     'getCallerNeurons' : IDL.Func([], [IDL.Vec(Neuron)], ['query']),
     'getStakingAccount' : IDL.Func([IDL.Nat16], [Account], ['query']),
+    'getUserNeurons' : IDL.Func([IDL.Principal], [IDL.Vec(Neuron)], ['query']),
     'getUserVotingPower' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
     'restake' : IDL.Func([NeuronId], [Result_1], []),
     'stake' : IDL.Func([IDL.Nat16], [Result], []),

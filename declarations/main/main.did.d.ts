@@ -50,6 +50,7 @@ export interface anon_class_10_1 {
   'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
   'getCallerNeurons' : ActorMethod<[], Array<Neuron>>,
   'getStakingAccount' : ActorMethod<[number], Account>,
+  'getUserNeurons' : ActorMethod<[Principal], Array<Neuron>>,
   'getUserVotingPower' : ActorMethod<[Principal], bigint>,
   'restake' : ActorMethod<[NeuronId], Result_1>,
   'stake' : ActorMethod<[number], Result>,

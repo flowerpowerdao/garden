@@ -5,6 +5,7 @@ type anon_class_10_1 =
    dissolveNeuron: (NeuronId) -> (Result_1);
    getCallerNeurons: () -> (vec Neuron) query;
    getStakingAccount: (nat16) -> (Account) query;
+   getUserNeurons: (principal) -> (vec Neuron) query;
    getUserVotingPower: (principal) -> (nat) query;
    restake: (NeuronId) -> (Result_1);
    stake: (nat16) -> (Result);
