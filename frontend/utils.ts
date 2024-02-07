@@ -1,5 +1,5 @@
 import { Principal } from "@dfinity/principal";
-import { AccountIdentifier, SubAccount } from "@dfinity/nns";
+import { AccountIdentifier, SubAccount } from '@dfinity/ledger-icp';
 import { Account } from '../declarations/icrc1/icrc1.did';
 import { Neuron } from '../declarations/main/main.did';
 import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId } from './canister-ids';

@@ -1,7 +1,10 @@
 [dependencies]
-base = "0.8.7"
-encoding = "https://github.com/aviate-labs/encoding.mo#v0.4.1"
+base = "0.10.4"
+encoding = "https://github.com/aviate-labs/encoding.mo#v0.4.1@2711d18727e954b11afc0d37945608512b5fbce2"
 time-consts = "1.0.1"
 
 [dev-dependencies]
-test = "1.0.1"
+test = "1.2.0"
+
+[toolchain]
+moc = "0.10.4"

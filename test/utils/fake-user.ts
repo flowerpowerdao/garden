@@ -1,7 +1,7 @@
 import { Actor, AnonymousIdentity } from '@dfinity/agent';
-import { AccountIdentifier } from '@dfinity/nns';
 import { Principal } from '@dfinity/principal';
 import { Secp256k1KeyIdentity } from '@dfinity/identity-secp256k1';
+import { AccountIdentifier } from '@dfinity/ledger-icp';
 
 import { generateIdentity } from './generate-identity';
 import { createAgent } from './create-agent';

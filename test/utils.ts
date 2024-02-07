@@ -3,7 +3,8 @@ import { expect } from "vitest";
 import { User } from "./user";
 
 import canisterIds from '../.dfx/local/canister_ids.json';
-import { AccountIdentifier, SubAccount } from "@dfinity/nns";
+import { AccountIdentifier, SubAccount } from '@dfinity/ledger-icp';
+
 import {Account} from '../declarations/icrc1/icrc1.did';
 import {Neuron} from '../declarations/main/main.did';
 
