@@ -142,6 +142,7 @@ module {
         case (#BTCFlower) initArgs.dailyRewards.btcFlower;
         case (#ETHFlower) initArgs.dailyRewards.ethFlower;
         case (#ICPFlower) initArgs.dailyRewards.icpFlower;
+        case (#BTCFlowerGen2) initArgs.dailyRewards.btcFlowerGen2;
       };
     };
 
@@ -180,6 +181,7 @@ module {
         case (#BTCFlower) 2;
         case (#ETHFlower) 1;
         case (#ICPFlower) 1;
+        case (#BTCFlowerGen2) 0;
       };
     };
 

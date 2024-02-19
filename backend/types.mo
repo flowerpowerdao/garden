@@ -14,6 +14,7 @@ module {
     #BTCFlower;
     #ETHFlower;
     #ICPFlower;
+    #BTCFlowerGen2;
   };
 
   public type Flower = {
@@ -52,6 +53,7 @@ module {
       btcFlower : Nat;
       ethFlower : Nat;
       icpFlower : Nat;
+      btcFlowerGen2 : Nat;
     };
     stakePeriod : Duration;
     rewardInterval : Duration;

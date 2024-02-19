@@ -3,8 +3,9 @@
   record {
     dailyRewards = record {
       btcFlower = 2_00000000; // 2 SEED
-      ethFlower = 1_00000000; // 1 SEED
-      icpFlower = 1_00000000; // 1 SEED
+      ethFlower = 50000000; // 0.5 SEED
+      icpFlower = 50000000; // 0.5 SEED
+      btcFlowerGen2 = 50000000; // 0.5 SEED
     };
     // stakePeriod = variant { days = 30 };
     // rewardInterval = variant { hours = 24 };
