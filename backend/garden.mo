@@ -16,6 +16,7 @@ import Nat8 "mo:base/Nat8";
 import Nat16 "mo:base/Nat16";
 
 import {DAY} "mo:time-consts";
+import NatX "mo:xtended-numbers/NatX";
 
 import Types "./types";
 import Actors "./actors";
@@ -185,15 +186,39 @@ module {
       };
     };
 
-    public func getStakingAccount(userId : Principal, nonce : Nat16) : Types.Account {
+    func _getStakingSubaccount(principal : Principal, flower : Types.Flower) : [Nat8] {
+      let collectionIndex : Nat8 = switch (flower.collection) {
+        case (#BTCFlower) 0;
+        case (#ETHFlower) 1;
+        case (#ICPFlower) 2;
+        case (#BTCFlowerGen2) 3;
+      };
+
+      // 0-29 principal
+      let buf = Buffer.fromIter<Nat8>(Principal.toBlob(principal).vals());
+      // 30 collection index
+      buf.add(collectionIndex);
+      // 31-32 token index
+      NatX.encodeNat16(buf, Nat16.fromNat(flower.tokenIndex), #msb);
+
+      assert(buf.size() == 32);
+
+      Buffer.toArray(buf);
+    };
+
+    public func getStakingAccount(userId : Principal, flower : Types.Flower) : Types.Account {
+      if (Principal.isAnonymous(userId) or Principal.toBlob(userId).size() > 29) {
+        Debug.trap("invalid userId: " # Principal.toText(userId));
+      };
+
       {
         owner = selfId;
-        subaccount = ?_getStakingSubaccount(userId, nonce);
+        subaccount = ?_getStakingSubaccount(userId, flower);
       }
     };
 
-    public func stake(userId : Principal, nonce : Nat16) : async Result.Result<Types.NeuronId, Text.Text> {
-      let stakingAccount = getStakingAccount(userId, nonce);
+    public func stake(userId : Principal, flower : Types.Flower) : async Result.Result<Types.NeuronId, Text.Text> {
+      let stakingAccount = getStakingAccount(userId, flower);
       let flowers = await _getFlowersOnAccount(stakingAccount);
 
       if (flowers.size() == 0) {
@@ -374,29 +399,6 @@ module {
           #err("neuron not found");
         };
       };
-    };
-
-    func _getStakingSubaccount(principal : Principal, nonce : Nat16) : [Nat8] {
-      let principalArr = Blob.toArray(Principal.toBlob(principal));
-      let nonceAr : [Nat8] = [
-        Nat8.fromNat(Nat16.toNat(nonce / 256)),
-        Nat8.fromNat(Nat16.toNat(nonce % 256)),
-      ];
-      let subaccount = Array.tabulate<Nat8>(32, func(i) {
-        if (i < principalArr.size()) {
-          principalArr[i];
-        } else if (i == 29 or i == 30) {
-          // add nonce
-          nonceAr[30 - i];
-        } else if (i == 31) {
-          // store principal size in last byte
-          Nat8.fromNat(principalArr.size());
-        } else {
-          // pad with 0
-          0;
-        };
-      });
-      subaccount;
     };
 
     func _accountToAccountId(account : Types.Account) : AccountId.AccountIdentifier {

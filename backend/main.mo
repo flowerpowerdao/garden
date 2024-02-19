@@ -7,7 +7,7 @@ import Garden "./garden";
 import Types "./types";
 import AccountId "./account-id";
 
-actor class(selfId : Principal, initArgs : Types.InitArgs) {
+actor class Main(selfId : Principal, initArgs : Types.InitArgs) {
   let garden = Garden.Garden(selfId, initArgs);
   garden.setTimers();
 
@@ -25,12 +25,12 @@ actor class(selfId : Principal, initArgs : Types.InitArgs) {
   };
 
   // PUBLIC
-  public query ({caller}) func getStakingAccount(nonce : Nat16) : async Types.Account {
-    garden.getStakingAccount(caller, nonce);
+  public query ({caller}) func getStakingAccount(flower : Types.Flower) : async Types.Account {
+    garden.getStakingAccount(caller, flower);
   };
 
-  public shared ({caller}) func stake(nonce : Nat16) : async Result.Result<Types.NeuronId, Text> {
-    await garden.stake(caller, nonce);
+  public shared ({caller}) func stake(flower : Types.Flower) : async Result.Result<Types.NeuronId, Text> {
+    await garden.stake(caller, flower);
   };
 
   public shared ({caller}) func restake(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
