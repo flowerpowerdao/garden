@@ -11,6 +11,7 @@ export const idlFactory = ({ IDL }) => {
     'stakePeriod' : Duration,
     'dailyRewards' : IDL.Record({
       'btcFlower' : IDL.Nat,
+      'btcFlowerGen2' : IDL.Nat,
       'icpFlower' : IDL.Nat,
       'ethFlower' : IDL.Nat,
     }),
@@ -27,6 +28,7 @@ export const idlFactory = ({ IDL }) => {
     'DissolveTimestamp' : Time,
   });
   const Collection = IDL.Variant({
+    'BTCFlowerGen2' : IDL.Null,
     'BTCFlower' : IDL.Null,
     'ICPFlower' : IDL.Null,
     'ETHFlower' : IDL.Null,
@@ -49,18 +51,18 @@ export const idlFactory = ({ IDL }) => {
     'flowers' : IDL.Vec(Flower),
   });
   const Result = IDL.Variant({ 'ok' : NeuronId, 'err' : IDL.Text });
-  const anon_class_10_1 = IDL.Service({
+  const Main = IDL.Service({
     'claimRewards' : IDL.Func([NeuronId, Account], [Result_1], []),
     'disburseNeuron' : IDL.Func([NeuronId, Account], [Result_1], []),
     'dissolveNeuron' : IDL.Func([NeuronId], [Result_1], []),
     'getCallerNeurons' : IDL.Func([], [IDL.Vec(Neuron)], ['query']),
-    'getStakingAccount' : IDL.Func([IDL.Nat16], [Account], ['query']),
+    'getStakingAccount' : IDL.Func([Flower], [Account], ['query']),
     'getUserNeurons' : IDL.Func([IDL.Principal], [IDL.Vec(Neuron)], ['query']),
     'getUserVotingPower' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
     'restake' : IDL.Func([NeuronId], [Result_1], []),
-    'stake' : IDL.Func([IDL.Nat16], [Result], []),
+    'stake' : IDL.Func([Flower], [Result], []),
   });
-  return anon_class_10_1;
+  return Main;
 };
 export const init = ({ IDL }) => {
   const Duration = IDL.Variant({
@@ -75,6 +77,7 @@ export const init = ({ IDL }) => {
     'stakePeriod' : Duration,
     'dailyRewards' : IDL.Record({
       'btcFlower' : IDL.Nat,
+      'btcFlowerGen2' : IDL.Nat,
       'icpFlower' : IDL.Nat,
       'ethFlower' : IDL.Nat,
     }),

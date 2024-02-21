@@ -1,11 +1,13 @@
 import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
+import type { IDL } from '@dfinity/candid';
 
 export interface Account {
   'owner' : Principal,
   'subaccount' : [] | [Uint8Array | number[]],
 }
-export type Collection = { 'BTCFlower' : null } |
+export type Collection = { 'BTCFlowerGen2' : null } |
+  { 'BTCFlower' : null } |
   { 'ICPFlower' : null } |
   { 'ETHFlower' : null };
 export type DissolveState = { 'DissolveDelay' : Time } |
@@ -21,9 +23,21 @@ export interface InitArgs {
   'stakePeriod' : Duration,
   'dailyRewards' : {
     'btcFlower' : bigint,
+    'btcFlowerGen2' : bigint,
     'icpFlower' : bigint,
     'ethFlower' : bigint,
   },
+}
+export interface Main {
+  'claimRewards' : ActorMethod<[NeuronId, Account], Result_1>,
+  'disburseNeuron' : ActorMethod<[NeuronId, Account], Result_1>,
+  'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
+  'getCallerNeurons' : ActorMethod<[], Array<Neuron>>,
+  'getStakingAccount' : ActorMethod<[Flower], Account>,
+  'getUserNeurons' : ActorMethod<[Principal], Array<Neuron>>,
+  'getUserVotingPower' : ActorMethod<[Principal], bigint>,
+  'restake' : ActorMethod<[NeuronId], Result_1>,
+  'stake' : ActorMethod<[Flower], Result>,
 }
 export interface Neuron {
   'id' : bigint,
@@ -44,15 +58,6 @@ export type Result_1 = { 'ok' : null } |
   { 'err' : string };
 export type Time = bigint;
 export type TokenIndex = bigint;
-export interface anon_class_10_1 {
-  'claimRewards' : ActorMethod<[NeuronId, Account], Result_1>,
-  'disburseNeuron' : ActorMethod<[NeuronId, Account], Result_1>,
-  'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
-  'getCallerNeurons' : ActorMethod<[], Array<Neuron>>,
-  'getStakingAccount' : ActorMethod<[number], Account>,
-  'getUserNeurons' : ActorMethod<[Principal], Array<Neuron>>,
-  'getUserVotingPower' : ActorMethod<[Principal], bigint>,
-  'restake' : ActorMethod<[NeuronId], Result_1>,
-  'stake' : ActorMethod<[number], Result>,
-}
-export interface _SERVICE extends anon_class_10_1 {}
+export interface _SERVICE extends Main {}
+export declare const idlFactory: IDL.InterfaceFactory;
+export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];
