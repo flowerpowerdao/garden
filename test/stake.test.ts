@@ -3,33 +3,50 @@ import { execSync } from 'child_process';
 import { User } from './user';
 import { rewardsForNeuron, toAccountId, tokenIdentifier } from './utils';
 import canisterIds from '../.dfx/local/canister_ids.json';
+import { Collection as CollectionBackend } from '../declarations/main/main.did';
 
 describe('staking', () => {
   let user = new User;
   let nonce = 1;
+  let stakeFlower = {
+    collection: { BTCFlowerGen2: null },
+    tokenIndex: BigInt(23),
+  };
 
   test('deploy', async () => {
     // execSync('npm run deploy');
     execSync('npm run deploy:main');
   });
 
-  test('should return same staking account for the same nonce', async () => {
-    let stakingAccount1 = await user.mainActor.getStakingAccount(23);
-    let stakingAccount2 = await user.mainActor.getStakingAccount(23);
+  test('should return same staking account for the same flower', async () => {
+    let stakeFlower = {
+      collection: { BTCFlowerGen2: null },
+      tokenIndex: BigInt(23),
+    };
+    let stakingAccount1 = await user.mainActor.getStakingAccount(stakeFlower);
+    let stakingAccount2 = await user.mainActor.getStakingAccount(stakeFlower);
     expect(stakingAccount1).toEqual(stakingAccount2);
   });
 
-  test('obtain unique staking accounts for random nonce', async () => {
+  test('obtain unique staking accounts for different flowers', async () => {
     let set = new Set;
-    for (let i = 0; i < 10; i++) {
-      let stakingAccount = await user.mainActor.getStakingAccount((Math.random() * (2 ** 16 - 1)) |0);
-      set.add(stakingAccount);
+    let flowerCount = 111;
+    let collections = ['BTCFlower', 'ETHFlower', 'ICPFlower', 'BTCFlowerGen2'];
+    for (let collection of collections) {
+      for (let i = 0; i < flowerCount; i++) {
+        let stakeFlower = {
+          collection: { [collection]: null } as CollectionBackend,
+          tokenIndex: BigInt(i),
+        };
+        let stakingAccount = await user.mainActor.getStakingAccount(stakeFlower);
+        set.add(stakingAccount);
+      }
     }
-    expect(set.size).toBe(10);
+    expect(set.size).toBe(flowerCount * collections.length);
   });
 
   test('transfer btc flower and eth flower to staking account', async () => {
-    let stakingAccount = await user.mainActor.getStakingAccount(nonce);
+    let stakingAccount = await user.mainActor.getStakingAccount(stakeFlower);
     await user.mintBTCFlower();
     await user.mintETHFlower();
 
@@ -60,7 +77,7 @@ describe('staking', () => {
 
   test('stake neuron', async () => {
     expect(await user.mainActor.getCallerNeurons()).toHaveLength(0);
-    let res = await user.mainActor.stake(nonce);
+    let res = await user.mainActor.stake(stakeFlower);
     expect(res).toHaveProperty('ok');
     expect(await user.mainActor.getCallerNeurons()).toHaveLength(1);
   });
