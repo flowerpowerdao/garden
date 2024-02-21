@@ -5,8 +5,8 @@
   import StakedFlower from './StakedFlower.svelte';
   import { Neuron } from '../../declarations/main/main.did';
   import Loader from 'fpdao-ui/components/Loader.svelte';
+  import { Collection } from '../types';
 
-  type Collection = 'btcFlower' | 'ethFlower' | 'icpFlower';
   type Flower = {
     collection: Collection;
     tokenIndex: number;
@@ -54,6 +54,13 @@
       }
     }
 
+    let loadUnstakedBtcFlowersGen2 = async () => {
+      let res = await $store.btcFlowerGen2Actor.tokens($authStore.accountId);
+      if ('ok' in res) {
+        unstakedFlowers = [...unstakedFlowers, ...Array.from(res.ok).map((tokenIndex) => ({ collection: 'btcFlowerGen2' as Collection, tokenIndex }))];
+      }
+    }
+
     let loadStakedFlowers = async () => {
       let userNeurons = await $store.gardenActor.getCallerNeurons();
       for (let neuron of userNeurons) {
@@ -74,6 +81,7 @@
       loadUnstakedBtcFlowers(),
       loadUnstakedEthFlowers(),
       loadUnstakedIcpFlowers(),
+      loadUnstakedBtcFlowersGen2(),
       loadStakedFlowers(),
     ]);
 

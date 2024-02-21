@@ -2,8 +2,9 @@
   import Button from 'fpdao-ui/components/Button.svelte';
   import FlowerPreview from './FlowerPreview.svelte';
   import StakeModal from './StakeModal.svelte';
+  import { Collection } from '../types';
 
-  export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
+  export let collection: Collection;
   export let tokenIndex: number;
 
   let stakeModal: StakeModal;
@@ -14,7 +15,7 @@
 </script>
 
 <FlowerPreview {collection} {tokenIndex}>
-  <Button on:click={toggleModal}>Stake</Button>
+  <Button on:click={toggleModal}>Plant</Button>
 </FlowerPreview>
 
 <StakeModal {collection} {tokenIndex} bind:this={stakeModal}></StakeModal>

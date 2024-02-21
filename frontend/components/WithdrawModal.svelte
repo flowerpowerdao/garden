@@ -2,14 +2,15 @@
   import Button from 'fpdao-ui/components/Button.svelte';
   import Modal from 'fpdao-ui/components/Modal.svelte';
   import Loader from 'fpdao-ui/components/Loader.svelte';
+  import { Principal } from '@dfinity/principal';
   import { getContext } from 'svelte';
 
   import { authStore, store } from '../store';
   import { Neuron } from '../../declarations/main/main.did';
-  import { Principal } from '@dfinity/principal';
+  import { Collection } from '../types';
 
   export let neuron: Neuron;
-  export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
+  export let collection: Collection;
 
   let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
 

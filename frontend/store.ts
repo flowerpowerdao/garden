@@ -11,7 +11,7 @@ import {
   createActor as createExtActor,
   idlFactory as extIdlFactory,
 } from "../declarations/ext";
-import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId } from './canister-ids';
+import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId, btcFlowerGen2CanisterId } from './canister-ids';
 
 export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://icp0.io";
 
@@ -20,6 +20,7 @@ type State = {
   btcFlowerActor: typeof ext;
   ethFlowerActor: typeof ext;
   icpFlowerActor: typeof ext;
+  btcFlowerGen2Actor: typeof ext;
 };
 
 const defaultState: State = {
@@ -33,6 +34,9 @@ const defaultState: State = {
     agentOptions: { host: HOST },
   }),
   icpFlowerActor: createExtActor(icpFlowerCanisterId, {
+    agentOptions: { host: HOST },
+  }),
+  btcFlowerGen2Actor: createExtActor(btcFlowerGen2CanisterId, {
     agentOptions: { host: HOST },
   }),
 };
@@ -54,6 +58,7 @@ export const createStore = (authStore: AuthStore) => {
         let btcFlowerActor = await authStore.createActor<typeof ext>(btcFlowerCanisterId, extIdlFactory);
         let ethFlowerActor = await authStore.createActor<typeof ext>(ethFlowerCanisterId, extIdlFactory);
         let icpFlowerActor = await authStore.createActor<typeof ext>(icpFlowerCanisterId, extIdlFactory);
+        let btcFlowerGen2Actor = await authStore.createActor<typeof ext>(btcFlowerGen2CanisterId, extIdlFactory);
         update((prevState) => {
           return {
             ...prevState,
@@ -61,6 +66,7 @@ export const createStore = (authStore: AuthStore) => {
             btcFlowerActor,
             ethFlowerActor,
             icpFlowerActor,
+            btcFlowerGen2Actor,
           };
         });
       }
@@ -82,6 +88,7 @@ export const authStore = createAuthStore({
     btcFlowerCanisterId,
     ethFlowerCanisterId,
     icpFlowerCanisterId,
+    btcFlowerGen2CanisterId,
   ],
   host: HOST,
 });

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { getTokenName, getCollectionCanisterId, tokenIdentifier } from '../utils';
+  import { Collection } from '../types';
 
-  export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
+  export let collection: Collection;
   export let tokenIndex: number;
   export let status: string = '';
 

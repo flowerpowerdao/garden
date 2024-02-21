@@ -8,9 +8,10 @@
   import { Neuron } from '../../declarations/main/main.did';
   import { Principal } from '@dfinity/principal';
   import { getTokenName } from '../utils';
+  import { Collection } from '../types';
 
   export let neuron: Neuron;
-  export let collection: 'btcFlower' | 'ethFlower' | 'icpFlower';
+  export let collection: Collection;
 
   let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
 

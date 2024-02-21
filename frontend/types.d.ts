@@ -1,1 +1,1 @@
-export type Collection = 'btcFlower' | 'ethFlower' | 'icpFlower';
+export type Collection = 'btcFlower' | 'ethFlower' | 'icpFlower' | 'btcFlowerGen2';
