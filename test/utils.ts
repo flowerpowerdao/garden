@@ -94,7 +94,7 @@ export function rewardsForNeuron(neuron: Neuron, elapsedTime: bigint) {
   let DAY = 86_400_000_000_000n;
   let BIG_NUMBER = 1_000_000_000_000_000_000_000n;
   let dailyRewards = neuron.flowers.reduce((acc, flower) => {
-    return 'BTCFlower' in flower.collection ? acc + 200000000n : acc + 100000000n;
+    return 'BTCFlower' in flower.collection ? acc + 200000000n : acc + 50000000n;
   }, 0n);
   let rewards = BIG_NUMBER * dailyRewards * elapsedTime / DAY / BIG_NUMBER;
   return rewards;
