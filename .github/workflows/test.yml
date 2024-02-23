@@ -15,13 +15,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # - uses: dfinity/setup-dfx@main
-      #   with:
-      #     dfx-version: 0.17.0
-      - uses: aviate-labs/setup-dfx@v0.2.6
+      - uses: dfinity/setup-dfx@main
         with:
-          vessel-version: 0.6.4
-          dfx-version: 0.14.1
+          dfx-version: 0.17.0
+
+      - name: install vessel
+        run: |
+          wget --output-document /home/runner/bin/vessel https://github.com/kritzcreek/vessel/releases/download/${{ env.vessel_version }}/vessel-linux64
+          chmod +x /home/runner/bin/vessel
 
       - name: install mops
         run: npm i ic-mops -g
