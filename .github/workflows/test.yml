@@ -36,4 +36,5 @@ jobs:
       - name: test
         run: |
             npm run replica
+            mops test -r files
             npm test
