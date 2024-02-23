@@ -15,8 +15,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: dfinity/setup-dfx@main
+      # - uses: dfinity/setup-dfx@main
+      #   with:
+      #     dfx-version: 0.17.0
+      - uses: aviate-labs/setup-dfx@v0.2.6
         with:
+          vessel-version: 0.6.4
           dfx-version: 0.17.0
 
       - name: install mops
