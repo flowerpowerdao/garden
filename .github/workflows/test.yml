@@ -21,7 +21,7 @@ jobs:
       - uses: aviate-labs/setup-dfx@v0.2.6
         with:
           vessel-version: 0.6.4
-          dfx-version: 0.17.0
+          dfx-version: 0.16.0
 
       - name: install mops
         run: npm i ic-mops -g
