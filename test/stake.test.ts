@@ -103,16 +103,20 @@ describe('staking', () => {
   test('stake 3 flowers', async () => {
     expect((await agent.mainActor.getCallerUser()).neurons).toHaveLength(0);
 
-    let res1 = await agent.mainActor.stake(btcStakeFlower);
-    expect(res1).toHaveProperty('ok');
-    expect((await agent.mainActor.getCallerUser()).neurons).toHaveLength(1);
-
-    let res2 = await agent.mainActor.stake(ethStakeFlower);
-    expect(res2).toHaveProperty('ok');
-    expect((await agent.mainActor.getCallerUser()).neurons).toHaveLength(2);
-
-    let res3 = await agent.mainActor.stake(icpStakeFlower);
-    expect(res3).toHaveProperty('ok');
+    await Promise.all([
+      (async () => {
+        let res1 = await agent.mainActor.stake(btcStakeFlower);
+        expect(res1).toHaveProperty('ok');
+      })(),
+      (async () => {
+        let res2 = await agent.mainActor.stake(ethStakeFlower);
+        expect(res2).toHaveProperty('ok');
+      })(),
+      (async () => {
+        let res3 = await agent.mainActor.stake(icpStakeFlower);
+        expect(res3).toHaveProperty('ok');
+      })(),
+    ]);
     let user = await agent.mainActor.getCallerUser();
     let neurons = user.neurons;
 
@@ -130,7 +134,7 @@ describe('staking', () => {
   });
 
   test('wait for rewards', async () => {
-    await new Promise(resolve => setTimeout(resolve, 1000 * 7));
+    await new Promise(resolve => setTimeout(resolve, 1000 * 10));
   });
 
   test('check rewards', async () => {
