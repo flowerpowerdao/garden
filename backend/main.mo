@@ -1,7 +1,10 @@
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 import Blob "mo:base/Blob";
+import Iter "mo:base/Iter";
 import Principal "mo:base/Principal";
+
+import Map "mo:map/Map";
 
 import Garden "./garden";
 import Types "./types";
@@ -37,27 +40,34 @@ actor class Main(selfId : Principal, initArgs : Types.InitArgs) {
     garden.restake(caller, neuronId);
   };
 
-  public query ({caller}) func getCallerNeurons() : async [Types.Neuron] {
-    garden.getUserNeurons(caller);
-  };
-
-  public query func getUserNeurons(userId : Principal) : async [Types.Neuron] {
-    garden.getUserNeurons(userId);
-  };
-
-  public query func getUserVotingPower(userId : Principal) : async Nat {
-    garden.getUserVotingPower(userId);
+  public query ({caller}) func getCallerUser() : async Types.UserRes {
+    let user = garden.getUser(caller);
+    {
+      user with
+      neurons = Iter.toArray(Map.vals(user.neurons));
+    };
   };
 
   public shared ({caller}) func dissolveNeuron(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
     garden.dissolveNeuron(caller, neuronId);
   };
 
-  public shared ({caller}) func claimRewards(neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text> {
-    await garden.claimRewards(caller, neuronId, toAccount);
+  public shared ({caller}) func claimRewards(toAccount : Types.Account) : async Result.Result<(), Text> {
+    await garden.claimRewards(caller, toAccount);
   };
 
   public shared ({caller}) func disburseNeuron(neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text> {
     await garden.disburseNeuron(caller, neuronId, toAccount);
+  };
+
+  // for fpdao app
+  public query ({caller}) func getUserNeurons(userId : Principal) : async [Types.Neuron] {
+    assert(caller == Principal.fromText("fqfmg-4iaaa-aaaae-qabaa-cai"));
+    garden.getUserNeurons(userId);
+  };
+
+  public query ({caller}) func getUserVotingPower(userId : Principal) : async Nat {
+    assert(caller == Principal.fromText("fqfmg-4iaaa-aaaae-qabaa-cai"));
+    garden.getUserVotingPower(userId);
   };
 };

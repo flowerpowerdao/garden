@@ -1,4 +1,5 @@
 import Time "mo:base/Time";
+import Map "mo:map/Map";
 
 module {
   public type Account = {
@@ -27,6 +28,21 @@ module {
     #DissolveTimestamp : Time.Time; // dissolving, in this timestamp user can disburse neuron and withdraw flowers
   };
 
+  public type UserGeneric = {
+    id : Principal;
+    createdAt : Time.Time;
+    rewards : Nat; // current rewards balance available for withdrawal
+    totalRewards : Nat;
+  };
+
+  public type User = UserGeneric and {
+    neurons : Map.Map<NeuronId, Neuron>;
+  };
+
+  public type UserRes = UserGeneric and {
+    neurons : [Neuron];
+  };
+
   public type Neuron = {
     id : Nat;
     userId : Principal;
@@ -34,8 +50,7 @@ module {
     createdAt : Time.Time;
     stakedAt : Time.Time;
     dissolveState : DissolveState;
-    flowers : [Flower];
-    rewards : Nat; // current rewards balance available for withdrawal
+    flower : Flower;
     totalRewards : Nat;
     prevRewardTime : Time.Time; // previous reward minting time
   };
@@ -57,5 +72,6 @@ module {
     };
     stakePeriod : Duration;
     rewardInterval : Duration;
+    trilogyBonus : Nat; // %
   };
 };

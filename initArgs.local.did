@@ -9,5 +9,6 @@
     };
     stakePeriod = variant { seconds = 15 };
     rewardInterval = variant { seconds = 7 };
+    trilogyBonus = 15; // 15%
   }
 )
