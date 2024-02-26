@@ -19,6 +19,7 @@ export type Duration = { 'nanoseconds' : bigint } |
   { 'seconds' : bigint };
 export interface Flower { 'collection' : Collection, 'tokenIndex' : TokenIndex }
 export interface InitArgs {
+  'trilogyBonus' : bigint,
   'rewardInterval' : Duration,
   'stakePeriod' : Duration,
   'dailyRewards' : {
@@ -29,10 +30,10 @@ export interface InitArgs {
   },
 }
 export interface Main {
-  'claimRewards' : ActorMethod<[NeuronId, Account], Result_1>,
+  'claimRewards' : ActorMethod<[Account], Result_1>,
   'disburseNeuron' : ActorMethod<[NeuronId, Account], Result_1>,
   'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
-  'getCallerNeurons' : ActorMethod<[], Array<Neuron>>,
+  'getCallerUser' : ActorMethod<[], UserRes>,
   'getStakingAccount' : ActorMethod<[Flower], Account>,
   'getUserNeurons' : ActorMethod<[Principal], Array<Neuron>>,
   'getUserVotingPower' : ActorMethod<[Principal], bigint>,
@@ -43,13 +44,12 @@ export interface Neuron {
   'id' : bigint,
   'prevRewardTime' : Time,
   'stakedAt' : Time,
+  'flower' : Flower,
   'userId' : Principal,
   'createdAt' : Time,
   'totalRewards' : bigint,
-  'rewards' : bigint,
   'dissolveState' : DissolveState,
   'stakingAccount' : Account,
-  'flowers' : Array<Flower>,
 }
 export type NeuronId = bigint;
 export type Result = { 'ok' : NeuronId } |
@@ -58,6 +58,13 @@ export type Result_1 = { 'ok' : null } |
   { 'err' : string };
 export type Time = bigint;
 export type TokenIndex = bigint;
+export interface UserRes {
+  'id' : Principal,
+  'createdAt' : Time,
+  'totalRewards' : bigint,
+  'rewards' : bigint,
+  'neurons' : Array<Neuron>,
+}
 export interface _SERVICE extends Main {}
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: ({ IDL }: { IDL: IDL }) => IDL.Type[];

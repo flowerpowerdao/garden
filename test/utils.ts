@@ -6,7 +6,7 @@ import canisterIds from '../.dfx/local/canister_ids.json';
 import { AccountIdentifier, SubAccount } from '@dfinity/ledger-icp';
 
 import {Account} from '../declarations/icrc1/icrc1.did';
-import {Neuron} from '../declarations/main/main.did';
+import {Neuron, UserRes} from '../declarations/main/main.did';
 
 export function feeOf(amount: bigint, fee: bigint) {
   return amount * fee / 100_000n;
@@ -63,7 +63,7 @@ export let tokenIdentifier = (canisterId, index) => {
   let array = new Uint8Array([
       ...padding,
       ...Principal.fromText(canisterId).toUint8Array(),
-      ...to32bits(index),
+      ...to32bits(Number(index)),
   ]);
   return Principal.fromUint8Array(array).toText();
 };
@@ -87,15 +87,22 @@ export let toAccountId = (account: Account) => {
   }
 };
 
-export function rewardsForNeuron(neuron: Neuron, elapsedTime: bigint) {
+export function rewardsForNeuron(neuron: Neuron) {
+  let elapsedTime = neuron.prevRewardTime - neuron.stakedAt;
   if (!elapsedTime) {
     return 0n;
   }
   let DAY = 86_400_000_000_000n;
   let BIG_NUMBER = 1_000_000_000_000_000_000_000n;
-  let dailyRewards = neuron.flowers.reduce((acc, flower) => {
-    return 'BTCFlower' in flower.collection ? acc + 200000000n : acc + 50000000n;
-  }, 0n);
+  let dailyRewards = 'BTCFlower' in neuron.flower.collection ? 200000000n : 50000000n;
   let rewards = BIG_NUMBER * dailyRewards * elapsedTime / DAY / BIG_NUMBER;
+  return rewards;
+}
+
+export function rewardsForUser(user: UserRes) {
+  let rewards = 0n;
+  for (let neuron of user.neurons) {
+    rewards += rewardsForNeuron(neuron);
+  }
   return rewards;
 }

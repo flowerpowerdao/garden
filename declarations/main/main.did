@@ -1,3 +1,11 @@
+type UserRes = 
+ record {
+   createdAt: Time;
+   id: principal;
+   neurons: vec Neuron;
+   rewards: nat;
+   totalRewards: nat;
+ };
 type TokenIndex = nat;
 type Time = int;
 type Result_1 = 
@@ -15,10 +23,9 @@ type Neuron =
  record {
    createdAt: Time;
    dissolveState: DissolveState;
-   flowers: vec Flower;
+   flower: Flower;
    id: nat;
    prevRewardTime: Time;
-   rewards: nat;
    stakedAt: Time;
    stakingAccount: Account;
    totalRewards: nat;
@@ -26,10 +33,10 @@ type Neuron =
  };
 type Main = 
  service {
-   claimRewards: (NeuronId, Account) -> (Result_1);
+   claimRewards: (Account) -> (Result_1);
    disburseNeuron: (NeuronId, Account) -> (Result_1);
    dissolveNeuron: (NeuronId) -> (Result_1);
-   getCallerNeurons: () -> (vec Neuron) query;
+   getCallerUser: () -> (UserRes) query;
    getStakingAccount: (Flower) -> (Account) query;
    getUserNeurons: (principal) -> (vec Neuron) query;
    getUserVotingPower: (principal) -> (nat) query;
@@ -47,6 +54,7 @@ type InitArgs =
     };
    rewardInterval: Duration;
    stakePeriod: Duration;
+   trilogyBonus: nat;
  };
 type Flower = 
  record {

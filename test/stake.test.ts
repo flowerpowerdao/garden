@@ -1,17 +1,15 @@
 import { describe, test, expect } from 'vitest';
 import { execSync } from 'child_process';
 import { User } from './user';
-import { rewardsForNeuron, toAccountId, tokenIdentifier } from './utils';
+import { rewardsForNeuron, rewardsForUser, toAccountId, tokenIdentifier } from './utils';
 import canisterIds from '../.dfx/local/canister_ids.json';
 import { Collection as CollectionBackend } from '../declarations/main/main.did';
 
 describe('staking', () => {
-  let user = new User;
-  let nonce = 1;
-  let stakeFlower = {
-    collection: { BTCFlowerGen2: null },
-    tokenIndex: BigInt(23),
-  };
+  let agent = new User;
+  let btcStakeFlower : { collection: CollectionBackend, tokenIndex: bigint };
+  let ethStakeFlower : { collection: CollectionBackend, tokenIndex: bigint };
+  let icpStakeFlower : { collection: CollectionBackend, tokenIndex: bigint };
 
   test('deploy', async () => {
     // execSync('npm run deploy');
@@ -23,8 +21,8 @@ describe('staking', () => {
       collection: { BTCFlowerGen2: null },
       tokenIndex: BigInt(23),
     };
-    let stakingAccount1 = await user.mainActor.getStakingAccount(stakeFlower);
-    let stakingAccount2 = await user.mainActor.getStakingAccount(stakeFlower);
+    let stakingAccount1 = await agent.mainActor.getStakingAccount(stakeFlower);
+    let stakingAccount2 = await agent.mainActor.getStakingAccount(stakeFlower);
     expect(stakingAccount1).toEqual(stakingAccount2);
   });
 
@@ -38,59 +36,97 @@ describe('staking', () => {
           collection: { [collection]: null } as CollectionBackend,
           tokenIndex: BigInt(i),
         };
-        let stakingAccount = await user.mainActor.getStakingAccount(stakeFlower);
+        let stakingAccount = await agent.mainActor.getStakingAccount(stakeFlower);
         set.add(stakingAccount);
       }
     }
     expect(set.size).toBe(flowerCount * collections.length);
   });
 
-  test('transfer btc flower and eth flower to staking account', async () => {
-    let stakingAccount = await user.mainActor.getStakingAccount(stakeFlower);
-    await user.mintBTCFlower();
-    await user.mintETHFlower();
+  test('transfer btc/eth/icp flowers to staking account', async () => {
+    await agent.mintBTCFlower();
+    await agent.mintETHFlower();
+    await agent.mintICPFlower();
 
-    let btcFlowers = await user.btcFlowerActor.tokens(user.accountId);
-    let res1 = await user.btcFlowerActor.transfer({
+    let btcFlowers = await agent.btcFlowerActor.tokens(agent.accountId);
+    btcStakeFlower = {
+      collection: { BTCFlower: null },
+      tokenIndex: BigInt(btcFlowers['ok'][0]),
+    };
+    let stakingAccount1 = await agent.mainActor.getStakingAccount(btcStakeFlower);
+    let res1 = await agent.btcFlowerActor.transfer({
       amount: 1n,
-      from: { address: user.accountId },
-      to: { address: toAccountId(stakingAccount) },
+      from: { address: agent.accountId },
+      to: { address: toAccountId(stakingAccount1) },
       memo: [],
       notify: false,
       subaccount: [],
-      token: tokenIdentifier(canisterIds.btcflower.local, btcFlowers['ok'][0]),
+      token: tokenIdentifier(canisterIds.btcflower.local, btcStakeFlower.tokenIndex),
     });
     expect(res1).toHaveProperty('ok');
 
-    let ethFlowers = await user.ethFlowerActor.tokens(user.accountId);
-    let res2 = await user.ethFlowerActor.transfer({
+    let ethFlowers = await agent.ethFlowerActor.tokens(agent.accountId);
+    ethStakeFlower = {
+      collection: { ETHFlower: null },
+      tokenIndex: BigInt(ethFlowers['ok'][0]),
+    };
+    let stakingAccount2 = await agent.mainActor.getStakingAccount(ethStakeFlower);
+    let res2 = await agent.ethFlowerActor.transfer({
       amount: 1n,
-      from: { address: user.accountId },
-      to: { address: toAccountId(stakingAccount) },
+      from: { address: agent.accountId },
+      to: { address: toAccountId(stakingAccount2) },
       memo: [],
       notify: false,
       subaccount: [],
-      token: tokenIdentifier(canisterIds.ethflower.local, ethFlowers['ok'][0]),
+      token: tokenIdentifier(canisterIds.ethflower.local, ethStakeFlower.tokenIndex),
     });
     expect(res2).toHaveProperty('ok');
+
+    let icpFlowers = await agent.icpFlowerActor.tokens(agent.accountId);
+    icpStakeFlower = {
+      collection: { ICPFlower: null },
+      tokenIndex: BigInt(icpFlowers['ok'][0]),
+    };
+    let stakingAccount3 = await agent.mainActor.getStakingAccount(icpStakeFlower);
+    let res3 = await agent.icpFlowerActor.transfer({
+      amount: 1n,
+      from: { address: agent.accountId },
+      to: { address: toAccountId(stakingAccount3) },
+      memo: [],
+      notify: false,
+      subaccount: [],
+      token: tokenIdentifier(canisterIds.icpflower.local, icpStakeFlower.tokenIndex),
+    });
+    expect(res3).toHaveProperty('ok');
   });
 
-  test('stake neuron', async () => {
-    expect(await user.mainActor.getCallerNeurons()).toHaveLength(0);
-    let res = await user.mainActor.stake(stakeFlower);
-    expect(res).toHaveProperty('ok');
-    expect(await user.mainActor.getCallerNeurons()).toHaveLength(1);
+  test('stake 3 flowers', async () => {
+    expect((await agent.mainActor.getCallerUser()).neurons).toHaveLength(0);
+
+    let res1 = await agent.mainActor.stake(btcStakeFlower);
+    expect(res1).toHaveProperty('ok');
+    expect((await agent.mainActor.getCallerUser()).neurons).toHaveLength(1);
+
+    let res2 = await agent.mainActor.stake(ethStakeFlower);
+    expect(res2).toHaveProperty('ok');
+    expect((await agent.mainActor.getCallerUser()).neurons).toHaveLength(2);
+
+    let res3 = await agent.mainActor.stake(icpStakeFlower);
+    expect(res3).toHaveProperty('ok');
+    let user = await agent.mainActor.getCallerUser();
+    let neurons = user.neurons;
+
+    expect(user.neurons).toHaveLength(3);
+    expect(neurons[2].prevRewardTime).toBe(neurons[2].stakedAt);
+    expect(neurons[2].totalRewards).toBe(0n);
   });
 
   test('get user neurons', async () => {
-    let neurons = await user.mainActor.getCallerNeurons();
-    expect(neurons).toHaveLength(1);
-  });
-
-  test('check rewards before mint', async () => {
-    let neuron = (await user.mainActor.getCallerNeurons())[0];
-    expect(neuron.prevRewardTime).toBe(neuron.stakedAt);
-    expect(neuron.rewards).toBe(0n);
+    let neurons = (await agent.mainActor.getCallerUser()).neurons;
+    expect(neurons).toHaveLength(3);
+    expect(neurons[0].flower).toEqual(btcStakeFlower);
+    expect(neurons[1].flower).toEqual(ethStakeFlower);
+    expect(neurons[2].flower).toEqual(icpStakeFlower);
   });
 
   test('wait for rewards', async () => {
@@ -98,39 +134,47 @@ describe('staking', () => {
   });
 
   test('check rewards', async () => {
-    let neuron = (await user.mainActor.getCallerNeurons())[0];
-    let rewards = rewardsForNeuron(neuron, neuron.prevRewardTime - neuron.stakedAt)
-    expect(neuron.rewards).toBeGreaterThan(0n);
-    expect(neuron.rewards).toBeGreaterThan(rewards - 2n);
-    expect(neuron.rewards).toBeLessThan(rewards + 2n);
+    let user = await agent.mainActor.getCallerUser();
+    let rewards = rewardsForUser(user);
+
+    for (let neuron of user.neurons) {
+      expect(neuron.totalRewards).toBe(rewardsForNeuron(neuron));
+      expect(neuron.totalRewards).not.toBe(rewardsForNeuron(neuron) + 10n);
+    }
+
+    rewards += rewards * 15n / 100n; // trilogy bonus
+    expect(user.rewards).toBeGreaterThan(0n);
+    expect(user.rewards).toBeGreaterThan(rewards - 2n);
+    expect(user.rewards).toBeLessThan(rewards + 2n);
   });
 
   test('try to disburse not dissolving neuron', async () => {
-    let neuron = (await user.mainActor.getCallerNeurons())[0];
-    let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
+    let neuron = ((await agent.mainActor.getCallerUser()).neurons)[0];
+    let res = await agent.mainActor.disburseNeuron(neuron.id, agent.account);
     expect(res).toEqual({ err: "neuron is not dissolved yet" });
   });
 
+  let oldTotalRewards = 0n;
+
   describe('dissolve', () => {
     test('dissolve neuron', async () => {
-      let neurons = await user.mainActor.getCallerNeurons();
-      expect(await user.mainActor.dissolveNeuron(neurons[0].id)).toHaveProperty('ok');
+      let neurons = (await agent.mainActor.getCallerUser()).neurons;
+      expect(await agent.mainActor.dissolveNeuron(neurons[0].id)).toHaveProperty('ok');
     });
 
     test('check neuron\'s dissolve state', async () => {
-      let neuron = (await user.mainActor.getCallerNeurons())[0];
+      let neuron = ((await agent.mainActor.getCallerUser()).neurons)[0];
       expect(neuron.dissolveState).toHaveProperty('DissolveTimestamp');
     });
 
-    let curRewards = 0n;
     test('save current rewards', async () => {
-      let neurons = await user.mainActor.getCallerNeurons();
-      curRewards = neurons[0].rewards;
+      let neurons = (await agent.mainActor.getCallerUser()).neurons;
+      oldTotalRewards = neurons[0].totalRewards;
     });
 
     test('try to disburse dissolving but not dissolved neuron', async () => {
-      let neuron = (await user.mainActor.getCallerNeurons())[0];
-      let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
+      let neuron = ((await agent.mainActor.getCallerUser()).neurons)[0];
+      let res = await agent.mainActor.disburseNeuron(neuron.id, agent.account);
       expect(res).toEqual({err: "neuron is not dissolved yet"});
     });
 
@@ -138,27 +182,27 @@ describe('staking', () => {
       await new Promise(resolve => setTimeout(resolve, 1000 * 15));
     });
 
-    test('check there are no new rewards', async () => {
-      let neuron = (await user.mainActor.getCallerNeurons())[0];
-      expect(neuron.rewards).toBe(curRewards);
+    test('check there are no new rewards for neuron', async () => {
+      let neuron = ((await agent.mainActor.getCallerUser()).neurons)[0];
+      expect(neuron.totalRewards).toBe(oldTotalRewards);
     });
   });
 
   test('withdraw rewards', async () => {
-    let newUser = new User;
-    let neuron = (await user.mainActor.getCallerNeurons())[0];
-    let res = await user.mainActor.claimRewards(neuron.id, newUser.account);
+    let agent2 = new User;
+    let user = await agent.mainActor.getCallerUser();
+    let res = await agent.mainActor.claimRewards(agent2.account);
     expect(res).toHaveProperty('ok');
-    expect(await user.seedActor.icrc1_balance_of(newUser.account)).toBe(neuron.rewards);
+    expect(await agent.seedActor.icrc1_balance_of(agent2.account)).toBe(user.rewards);
 
-    neuron = (await user.mainActor.getCallerNeurons())[0];
-    expect(neuron.rewards).toBe(0n);
+    user = await agent.mainActor.getCallerUser();
+    expect(user.rewards).toBe(0n);
   });
 
   describe('restake', () => {
     test('restake neuron', async () => {
-      let neuron = (await user.mainActor.getCallerNeurons())[0];
-      let res = await user.mainActor.restake(neuron.id);
+      let neuron = ((await agent.mainActor.getCallerUser()).neurons)[0];
+      let res = await agent.mainActor.restake(neuron.id);
       expect(res).toHaveProperty('ok');
     });
 
@@ -167,23 +211,23 @@ describe('staking', () => {
     });
 
     test('check rewards', async () => {
-      let neuron = (await user.mainActor.getCallerNeurons())[0];
-      let rewards = rewardsForNeuron(neuron, neuron.prevRewardTime - neuron.stakedAt);
-      expect(neuron.rewards).toBeGreaterThan(rewards - 2n);
-      expect(neuron.rewards).toBeLessThan(rewards + 2n);
+      let neuron = ((await agent.mainActor.getCallerUser()).neurons)[0];
+      let rewards = rewardsForNeuron(neuron);
+      expect(neuron.totalRewards).toBeGreaterThan(oldTotalRewards + rewards - 2n);
+      expect(neuron.totalRewards).toBeLessThan(oldTotalRewards + rewards + 2n);
     });
   });
 
   describe('dissolve again', () => {
     test('dissolve neuron', async () => {
-      let neurons = await user.mainActor.getCallerNeurons();
-      expect(await user.mainActor.dissolveNeuron(neurons[0].id)).toHaveProperty('ok');
+      let neurons = (await agent.mainActor.getCallerUser()).neurons;
+      expect(await agent.mainActor.dissolveNeuron(neurons[0].id)).toHaveProperty('ok');
     });
 
-    let curRewards = 0n;
+    let oldTotalRewards2 = 0n;
     test('save current rewards', async () => {
-      let neurons = await user.mainActor.getCallerNeurons();
-      curRewards = neurons[0].rewards;
+      let neurons = (await agent.mainActor.getCallerUser()).neurons;
+      oldTotalRewards2 = neurons[0].totalRewards;
     });
 
     test('wait for neuron to dissolve', async () => {
@@ -191,23 +235,25 @@ describe('staking', () => {
     });
 
     test('check there are no new rewards', async () => {
-      let neuron = (await user.mainActor.getCallerNeurons())[0];
-      expect(neuron.rewards).toBe(curRewards);
+      let neuron = ((await agent.mainActor.getCallerUser()).neurons)[0];
+      expect(neuron.totalRewards).toBe(oldTotalRewards2);
     });
   });
 
   test('disburse neuron', async () => {
-    let neuron = (await user.mainActor.getCallerNeurons())[0];
-    let res = await user.mainActor.disburseNeuron(neuron.id, user.account);
+    let user = await agent.mainActor.getCallerUser();
+    let neuron = user.neurons[0];
+
+    // disburse neuron
+    let res = await agent.mainActor.disburseNeuron(neuron.id, agent.account);
     expect(res).toHaveProperty('ok');
 
-    expect(await user.seedActor.icrc1_balance_of(user.account)).toBe(neuron.rewards);
-    expect((await user.btcFlowerActor.tokens(user.accountId))['ok'][0]).toBe(Number([neuron.flowers.find(f => 'BTCFlower' in f.collection)?.tokenIndex]));
-    expect((await user.ethFlowerActor.tokens(user.accountId))['ok'][0]).toBe(Number([neuron.flowers.find(f => 'ETHFlower' in f.collection)?.tokenIndex]));
+    // check if flower is transferred back to user
+    expect((await agent.btcFlowerActor.tokens(agent.accountId))['ok'][0]).toBe(Number(neuron.flower.tokenIndex));
   });
 
   test('neuron should be deleted', async () => {
-    let neurons = await user.mainActor.getCallerNeurons();
-    expect(neurons.length).toBe(0);
+    let neurons = (await agent.mainActor.getCallerUser()).neurons;
+    expect(neurons.length).toBe(2);
   });
 });
