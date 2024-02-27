@@ -6,4 +6,5 @@ let minter = new User('minter');
   await minter.mintBTCFlower(process.env.WALLET_ADDRESS);
   await minter.mintETHFlower(process.env.WALLET_ADDRESS);
   await minter.mintICPFlower(process.env.WALLET_ADDRESS);
+  await minter.mintBTCFlowerGen2(process.env.WALLET_ADDRESS);
 })();

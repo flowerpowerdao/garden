@@ -4,7 +4,7 @@
   import Modal from 'fpdao-ui/components/Modal.svelte';
   import Loader from 'fpdao-ui/components/Loader.svelte';
   import { authStore, store } from '../store';
-  import { getCollectionCanisterId, toAccountId, tokenIdentifier } from '../utils';
+  import { getCollectionCanisterId, getCollectionDailyRewards, toAccountId, tokenIdentifier } from '../utils';
   import { Collection as CollectionBackend } from 'declarations/main/main.did';
   import { Collection } from '../types';
 
@@ -13,7 +13,7 @@
 
   let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
 
-  let dailyReward = collection === 'btcFlower' ? 2 : 1;
+  let dailyReward = getCollectionDailyRewards(collection);
   let modalOpen = false;
   let loading = false;
   let success = false;

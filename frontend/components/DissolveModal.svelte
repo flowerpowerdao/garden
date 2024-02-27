@@ -55,7 +55,8 @@
       {:else}
         <div class="text-xl flex flex-col gap-4">
           <div>Dissolve delay is 30 days.</div>
-          <div>After 30 days you can disburse neuron and withdraw flowers.</div>
+          <div>During this period, the flower does not produce seeds.</div>
+          <div>After 30 days you can withdraw the flower.</div>
         </div>
         <Button style="w-auto px-20 py-8 h-10 mt-10 rounded-[55px]" disabled={loading} on:click={startDissolve}>
           {#if loading}

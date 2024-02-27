@@ -7,7 +7,7 @@
   import RestakeModal from './RestakeModal.svelte';
   import WithdrawModal from './WithdrawModal.svelte';
   import DisburseModal from './DisburseModal.svelte';
-  import { getNeuronCollection, getNeuronTokenIndex } from '../utils';
+  import { getCollectionDailyRewards, getNeuronCollection, getNeuronTokenIndex } from '../utils';
   import { Neuron } from '../../declarations/main/main.did';
 
   export let neuron: Neuron;
@@ -17,7 +17,6 @@
 
   let dissolveModal: DissolveModal;
   let restakeModal: RestakeModal;
-  let withdrawModal: WithdrawModal;
   let disburseModal: DisburseModal;
 
   let toggleDissolveModal = () => {
@@ -26,10 +25,6 @@
 
   let toggleRestakeModal = () => {
     restakeModal.toggleModal();
-  };
-
-  let toggleWithdrawModal = () => {
-    withdrawModal.toggleModal();
   };
 
   let toggleDisburseModal = () => {
@@ -47,7 +42,7 @@
 
   let status = '';
   $: if (state === 'staked') {
-    status = 'Not Dissolving';
+    status = 'Planted';
   } else if (state === 'dissolving' && 'DissolveTimestamp' in neuron.dissolveState) {
     status = `Dissolving: ${formatDistanceToNowStrict(new Date(Number(neuron.dissolveState.DissolveTimestamp / 1_000_000n)))} left`;
   } else if (state === 'dissolved') {
@@ -60,22 +55,20 @@
     <div class="mb-1"></div>
 
     <div>{status}</div>
-    <div>Balance: <span class="font-bold">{(Number(neuron.rewards) / 1e8).toFixed(3)}</span> SEED</div>
+    <div>Produces: <span class="font-bold">{getCollectionDailyRewards(getNeuronCollection(neuron))}</span> SEED/day</div>
 
     <div class="mb-2"></div>
 
-    <Button on:click={toggleWithdrawModal}>Withdraw</Button>
     {#if state === 'staked'}
       <Button on:click={toggleDissolveModal}>Dissolve</Button>
     {:else if state === 'dissolving'}
       <Button on:click={toggleRestakeModal}>Restake</Button>
     {:else if state === 'dissolved'}
-      <Button on:click={toggleDisburseModal}>Disburse</Button>
+      <Button on:click={toggleDisburseModal}>Withdraw</Button>
     {/if}
   </div>
 </FlowerPreview>
 
 <DissolveModal {neuron} {collection} bind:this={dissolveModal}></DissolveModal>
 <RestakeModal {neuron} bind:this={restakeModal}></RestakeModal>
-<WithdrawModal {neuron} {collection} bind:this={withdrawModal}></WithdrawModal>
 <DisburseModal {neuron} {collection} bind:this={disburseModal}></DisburseModal>

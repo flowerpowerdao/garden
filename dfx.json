@@ -4,6 +4,7 @@
     "main": {
       "type": "motoko",
       "main": "backend/main.mo",
+      "specified_id": "afcvu-dyaaa-aaaap-qboqq-cai",
       "declarations": {
         "node_compatibility": true,
         "output": "declarations/main"
@@ -20,6 +21,7 @@
       "type": "custom",
       "wasm": "declarations/ledger/ledger.wasm",
       "candid": "declarations/ledger/ledger.private.did",
+      "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai",
       "remote": {
         "candid": "declarations/ledger/ledger.public.did",
         "id": {
@@ -31,6 +33,7 @@
       "type": "custom",
       "wasm": "declarations/icrc1/icrc1.wasm",
       "candid": "declarations/icrc1/icrc1.did",
+      "specified_id": "fua74-fyaaa-aaaan-qecrq-cai",
       "remote": {
         "id": {
           "ic": "fua74-fyaaa-aaaan-qecrq-cai"
@@ -41,6 +44,7 @@
       "type": "custom",
       "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
       "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did",
+      "specified_id": "pk6rk-6aaaa-aaaae-qaazq-cai",
       "remote": {
         "id": {
           "ic": "pk6rk-6aaaa-aaaae-qaazq-cai"
@@ -51,6 +55,7 @@
       "type": "custom",
       "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
       "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did",
+      "specified_id": "dhiaa-ryaaa-aaaae-qabva-cai",
       "remote": {
         "id": {
           "ic": "dhiaa-ryaaa-aaaae-qabva-cai"
@@ -61,9 +66,21 @@
       "type": "custom",
       "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
       "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did",
+      "specified_id": "4ggk4-mqaaa-aaaae-qad6q-cai",
       "remote": {
         "id": {
           "ic": "4ggk4-mqaaa-aaaae-qad6q-cai"
+        }
+      }
+    },
+    "btcflower_gen2": {
+      "type": "custom",
+      "wasm": "power-equalizer/.dfx/local/canisters/staging/staging.wasm",
+      "candid": "power-equalizer/.dfx/local/canisters/staging/staging.did",
+      "specified_id": "u2kyg-aaaaa-aaaag-qc5ja-cai",
+      "remote": {
+        "id": {
+          "ic": "u2kyg-aaaaa-aaaag-qc5ja-cai"
         }
       }
     }

@@ -3,9 +3,10 @@
   import { authStore, store } from '../store';
   import UnstakedFlower from './UnstakedFlower.svelte';
   import StakedFlower from './StakedFlower.svelte';
-  import { Neuron } from '../../declarations/main/main.did';
+  import { Neuron, UserRes } from '../../declarations/main/main.did';
   import Loader from 'fpdao-ui/components/Loader.svelte';
   import { Collection } from '../types';
+  import Rewards from './Rewards.svelte';
 
   type Flower = {
     collection: Collection;
@@ -17,6 +18,7 @@
   let gardenLoading = true;
   $: isAuthed = $authStore.isAuthed;
 
+  let user: UserRes;
   let unstakedFlowers: Flower[] = [];
   let stakedFlowers: Flower[] = [];
 
@@ -62,19 +64,17 @@
     }
 
     let loadStakedFlowers = async () => {
-      let userNeurons = await $store.gardenActor.getCallerNeurons();
-      for (let neuron of userNeurons) {
-        for (let flower of neuron.flowers) {
-          console.log(neuron)
-          stakedFlowers.push({
-            collection: Object.keys(flower.collection)[0].replace('BTC', 'btc').replace('ETH', 'eth').replace('ICP', 'icp') as Collection,
-            tokenIndex: Number(flower.tokenIndex),
-            neuron: neuron,
-          });
-        }
+      user = await $store.gardenActor.getCallerUser();
+      for (let neuron of user.neurons) {
+        console.log(neuron)
+        stakedFlowers.push({
+          collection: Object.keys(neuron.flower.collection)[0].replace('BTC', 'btc').replace('ETH', 'eth').replace('ICP', 'icp') as Collection,
+          tokenIndex: Number(neuron.flower.tokenIndex),
+          neuron: neuron,
+        });
       }
       stakedFlowers = [...stakedFlowers];
-      console.log(userNeurons, stakedFlowers)
+      console.log(user, stakedFlowers)
     }
 
     await Promise.all([
@@ -101,7 +101,12 @@
   {:else if gardenLoading}
     <div class="flex items-center gap-3 py-10 mt-7 text-3xl"><Loader></Loader> Loading...</div>
   {:else}
-    <div class="py-10 text-3xl">Flowers in Garden</div>
+    <div class="py-10 text-3xl">Your rewards</div>
+    <div class="flex gap-20 flex-wrap">
+      <Rewards {user}></Rewards>
+    </div>
+
+    <div class="py-10 mt-7 text-3xl">Flowers in your garden</div>
     <div class="flex gap-20 flex-wrap">
       {#each stakedFlowers as flower}
         <StakedFlower neuron={flower.neuron}></StakedFlower>

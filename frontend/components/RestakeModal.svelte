@@ -5,12 +5,13 @@
   import Loader from 'fpdao-ui/components/Loader.svelte';
   import { store } from '../store';
   import { Neuron } from '../../declarations/main/main.did';
+  import {getCollectionDailyRewards, getNeuronCollection} from '../utils';
 
   export let neuron: Neuron;
 
   let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
 
-  let dailyReward = 'BTCFlower' in neuron.flowers[0].collection ? 2 : 1;
+  let dailyReward = getCollectionDailyRewards(getNeuronCollection(neuron));
   let modalOpen = false;
   let loading = false;
   let success = false;

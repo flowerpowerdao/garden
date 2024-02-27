@@ -18,6 +18,7 @@ export class User extends FakeUser {
   btcFlowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.btcflower.local);
   ethFlowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.ethflower.local);
   icpFlowerActor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.icpflower.local);
+  btcFlowerGen2Actor = this.createActor<_SERVICE_EXT>(idlFactoryExt, canisterIds.btcflower_gen2.local);
 
   async mintFlower(actor: _SERVICE_EXT, canisterId: string, to: string = this.accountId) {
     let minter = new User('minter');
@@ -48,5 +49,9 @@ export class User extends FakeUser {
 
   async mintICPFlower(to?: string) {
     await this.mintFlower(new User('minter').icpFlowerActor, canisterIds.icpflower.local, to);
+  }
+
+  async mintBTCFlowerGen2(to?: string) {
+    await this.mintFlower(new User('minter').btcFlowerGen2Actor, canisterIds.btcflower_gen2.local, to);
   }
 }

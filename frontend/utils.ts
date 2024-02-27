@@ -89,9 +89,13 @@ export let getCollectionCanisterId = (collection: Collection) => {
 };
 
 export let getNeuronCollection = (neuron: Neuron): Collection => {
-  return Object.keys(neuron.flowers[0].collection)[0].replace('BTC', 'btc').replace('ETH', 'eth').replace('ICP', 'icp') as Collection;
+  return Object.keys(neuron.flower.collection)[0].replace('BTC', 'btc').replace('ETH', 'eth').replace('ICP', 'icp') as Collection;
 }
 
 export let getNeuronTokenIndex = (neuron: Neuron): number => {
-  return Number(neuron.flowers[0].tokenIndex);
+  return Number(neuron.flower.tokenIndex);
+}
+
+export let getCollectionDailyRewards = (collection: Collection): number => {
+  return collection === 'btcFlower' ? 2 : 0.5;
 }

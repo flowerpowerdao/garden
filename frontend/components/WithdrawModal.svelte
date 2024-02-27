@@ -6,11 +6,9 @@
   import { getContext } from 'svelte';
 
   import { authStore, store } from '../store';
-  import { Neuron } from '../../declarations/main/main.did';
-  import { Collection } from '../types';
+  import { UserRes } from '../../declarations/main/main.did';
 
-  export let neuron: Neuron;
-  export let collection: Collection;
+  export let user: UserRes;
 
   let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
 
@@ -44,7 +42,7 @@
       return;
     }
 
-    let res = await $store.gardenActor.claimRewards(neuron.id, { owner: principal, subaccount: [] });
+    let res = await $store.gardenActor.claimRewards({ owner: principal, subaccount: [] });
     if ('err' in res) {
       error = res.err;
       return;
@@ -55,7 +53,7 @@
 </script>
 
 {#if modalOpen}
-  <Modal title="Withdraw" {toggleModal}>
+  <Modal title="Withdraw SEED" {toggleModal}>
     <div class="flex gap-3 flex-col flex-1 justify-center items-center">
       {#if error}
         <div class="text-red-700 text-xl flex flex-col grow">
@@ -76,7 +74,7 @@
           {#if loading}
             <Loader {loading}></Loader>
           {:else}
-            Withdraw {(Number(neuron.rewards) / 1e8).toFixed(3)} SEED
+            Withdraw {(Number(user.rewards) / 1e8).toFixed(4)} SEED
           {/if}
         </Button>
       {/if}
