@@ -41,7 +41,7 @@
 </script>
 
 {#if modalOpen}
-  <Modal title="Dissolve" {toggleModal}>
+  <Modal title="Extract" {toggleModal}>
     <div class="flex gap-3 flex-col flex-1 justify-center items-center">
       {#if error}
         <div class="text-red-700 text-xl flex flex-col grow">
@@ -54,7 +54,7 @@
         </div>
       {:else}
         <div class="text-xl flex flex-col gap-4">
-          <div>Dissolve delay is 30 days.</div>
+          <div>Extract delay is 30 days.</div>
           <div>During this period, the flower does not produce seeds.</div>
           <div>After 30 days you can withdraw the flower.</div>
         </div>
@@ -62,7 +62,7 @@
           {#if loading}
             <Loader {loading}></Loader>
           {:else}
-            Start Dissolve
+            Extract
           {/if}
         </Button>
       {/if}

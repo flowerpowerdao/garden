@@ -2,7 +2,7 @@ import { Principal } from "@dfinity/principal";
 import { AccountIdentifier, SubAccount } from '@dfinity/ledger-icp';
 import { Account } from '../declarations/icrc1/icrc1.did';
 import { Neuron } from '../declarations/main/main.did';
-import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId } from './canister-ids';
+import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId, btcFlowerGen2CanisterId } from './canister-ids';
 import { Collection } from './types';
 
 export function feeOf(amount: bigint, fee: bigint) {
@@ -72,6 +72,8 @@ export let getTokenName = (collection: Collection, tokenIndex: number) => {
     collectionName = `ETH Flower`;
   } else if (collection === 'icpFlower') {
     collectionName = `ICP Flower`;
+  } else if (collection === 'btcFlowerGen2') {
+    collectionName = `BTC Flower Gen 2.0`;
   }
   return `${collectionName} #${tokenIndex + 1}`;
 };
@@ -84,6 +86,8 @@ export let getCollectionCanisterId = (collection: Collection) => {
     canisterId = ethFlowerCanisterId;
   } else if (collection === 'icpFlower') {
     canisterId = icpFlowerCanisterId;
+  } else if (collection === 'btcFlowerGen2') {
+    canisterId = btcFlowerGen2CanisterId;
   }
   return canisterId;
 };

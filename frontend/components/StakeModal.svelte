@@ -57,14 +57,15 @@
     loading = true;
 
     let collectionActor = getCollectionActor();
-    let collections = ['btcFlower', 'ethFlower', 'icpFlower']
-    let nonce = 10_000 * collections.indexOf(collection) + tokenIndex;
     let stakeFlower = {
       collection: getCollectionVariant(),
       tokenIndex: BigInt(tokenIndex),
     };
     let stakingAccount = await $store.gardenActor.getStakingAccount(stakeFlower);
-    localStorage.setItem(`${collection}-${tokenIndex}-nonce`, nonce.toString());
+    localStorage.setItem(`${collection}-${tokenIndex}-owner`, stakingAccount.owner.toString());
+    localStorage.setItem(`${collection}-${tokenIndex}-subaccount`, stakingAccount.subaccount.join(','));
+    localStorage.setItem(`${collection}-${tokenIndex}-account-id`, toAccountId(stakingAccount));
+    localStorage.setItem(`${collection}-${tokenIndex}-account-id`, toAccountId(stakingAccount));
 
     console.log('staking account', stakingAccount);
 
@@ -112,7 +113,7 @@
         <div class="text-xl flex flex-col gap-4">
           <div>You are about to plant your flower.</div>
           <div>Planted flower will give you {dailyReward} SEED tokens every day.</div>
-          <div>If you decide to unstake the flower you have to wait 30 day before you can withdraw the flower.</div>
+          <div>If you decide to extract the flower you have to wait 30 day before you can withdraw the flower.</div>
         </div>
         <Button style="w-auto px-20 py-8 h-10 mt-10 rounded-[55px]" disabled={loading} on:click={stake}>
           {#if loading}

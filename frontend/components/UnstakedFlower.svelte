@@ -15,7 +15,7 @@
 </script>
 
 <FlowerPreview {collection} {tokenIndex}>
-  <Button on:click={toggleModal}>Plant</Button>
+  <Button style="w-40" on:click={toggleModal}>Plant</Button>
 </FlowerPreview>
 
 <StakeModal {collection} {tokenIndex} bind:this={stakeModal}></StakeModal>

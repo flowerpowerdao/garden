@@ -386,7 +386,7 @@ module {
 
     func _getFlowersOnAccount(account : Types.Account) : async [Types.Flower] {
       let accountId = AccountId.fromPrincipal(account.owner, account.subaccount);
-      let collections = [#BTCFlower, #ETHFlower, #ICPFlower];
+      let collections = [#BTCFlower, #ETHFlower, #ICPFlower, #BTCFlowerGen2];
       let flowers = Buffer.Buffer<Types.Flower>(0);
 
       for (collection in collections.vals()) {

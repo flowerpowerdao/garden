@@ -19,7 +19,8 @@
 
   let trilogyCount = Math.min(...[getFlowerCount('BTCFlower'), getFlowerCount('ETHFlower'), getFlowerCount('ICPFlower')]);
   let growthRate = (getFlowerCount('BTCFlower') * 2 + getFlowerCount('ETHFlower') * 0.5 + getFlowerCount('ICPFlower') * 0.5 + getFlowerCount('BTCFlowerGen2') * 0.5)
-  growthRate += growthRate * trilogyCount * 15 / 100;
+  let trilogyBonus = growthRate * trilogyCount * 15 / 100;
+  growthRate += trilogyBonus;
 </script>
 
 
@@ -35,7 +36,7 @@
       <div><span class="font-semibold">{getFlowerCount('ETHFlower')}</span> ETH Flower <span class="font-semibold">x 0.5</span> SEED = <span class="font-semibold">{getFlowerCount('ETHFlower') * 0.5}</span> SEED/day</div>
       <div><span class="font-semibold">{getFlowerCount('ICPFlower')}</span> ICP Flower <span class="font-semibold">x 0.5</span> SEED = <span class="font-semibold">{getFlowerCount('ICPFlower') * 0.5}</span> SEED/day</div>
       <div><span class="font-semibold">{getFlowerCount('BTCFlowerGen2')}</span> BTC Flower Gen 2.0 <span class="font-semibold">x 0.5</span> SEED = <span class="font-semibold">{getFlowerCount('BTCFlowerGen2') * 0.5}</span> SEED/day</div>
-      <div><span class="font-semibold">+{trilogyCount * 15}%</span> trilogy bonus</div>
+      <div><span class="font-semibold">{trilogyCount}</span> trilogy bonus <span class="font-semibold">x {trilogyCount * 15}%</span> = <span class="font-semibold">{trilogyBonus}</span> SEED/day</div>
     </div>
   </div>
 </div>

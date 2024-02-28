@@ -44,9 +44,9 @@
   $: if (state === 'staked') {
     status = 'Planted';
   } else if (state === 'dissolving' && 'DissolveTimestamp' in neuron.dissolveState) {
-    status = `Dissolving: ${formatDistanceToNowStrict(new Date(Number(neuron.dissolveState.DissolveTimestamp / 1_000_000n)))} left`;
+    status = `Extracting: ${formatDistanceToNowStrict(new Date(Number(neuron.dissolveState.DissolveTimestamp / 1_000_000n)))} left`;
   } else if (state === 'dissolved') {
-    status = 'Dissolved';
+    status = 'Extracted';
   }
 </script>
 
@@ -55,17 +55,22 @@
     <div class="mb-1"></div>
 
     <div>{status}</div>
-    <div>Produces: <span class="font-bold">{getCollectionDailyRewards(getNeuronCollection(neuron))}</span> SEED/day</div>
+    {#if state === 'staked'}
+      <div>Produces: <span class="font-bold">{getCollectionDailyRewards(getNeuronCollection(neuron))}</span> SEED/day</div>
+    {/if}
 
     <div class="mb-2"></div>
 
-    {#if state === 'staked'}
-      <Button on:click={toggleDissolveModal}>Dissolve</Button>
-    {:else if state === 'dissolving'}
-      <Button on:click={toggleRestakeModal}>Restake</Button>
-    {:else if state === 'dissolved'}
-      <Button on:click={toggleDisburseModal}>Withdraw</Button>
-    {/if}
+    <div class="w-40 m-auto flex flex-col gap-3">
+      {#if state === 'staked'}
+        <Button on:click={toggleDissolveModal}>Extract</Button>
+      {:else if state === 'dissolving'}
+        <Button on:click={toggleRestakeModal}>Replant</Button>
+      {:else if state === 'dissolved'}
+        <Button on:click={toggleRestakeModal}>Replant</Button>
+        <Button on:click={toggleDisburseModal}>Withdraw</Button>
+      {/if}
+    </div>
   </div>
 </FlowerPreview>
 
