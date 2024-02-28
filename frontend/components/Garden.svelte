@@ -7,6 +7,7 @@
   import Loader from 'fpdao-ui/components/Loader.svelte';
   import { Collection } from '../types';
   import Rewards from './Rewards.svelte';
+  import DisclaimerModal from './DisclaimerModal.svelte';
 
   type Flower = {
     collection: Collection;
@@ -125,3 +126,5 @@
     </div>
   {/if}
 </div>
+
+<DisclaimerModal></DisclaimerModal>
