@@ -8,7 +8,7 @@
       btcFlowerGen2 = 50000000; // 0.5 SEED
     };
     // stakePeriod = variant { days = 30 };
-    // rewardInterval = variant { hours = 24 };
+    // rewardInterval = variant { minutes = 10 };
     stakePeriod = variant { seconds = 30 };
     rewardInterval = variant { seconds = 10 };
     trilogyBonus = 15; // 15%

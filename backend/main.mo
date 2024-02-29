@@ -28,6 +28,10 @@ actor class Main(selfId : Principal, initArgs : Types.InitArgs) {
   };
 
   // PUBLIC
+  public query func getClaimableSupply() : async Nat {
+    garden.getClaimableSupply();
+  };
+
   public query ({caller}) func getStakingAccount(flower : Types.Flower) : async Types.Account {
     garden.getStakingAccount(caller, flower);
   };

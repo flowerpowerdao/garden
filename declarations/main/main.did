@@ -37,6 +37,7 @@ type Main =
    disburseNeuron: (NeuronId, Account) -> (Result_1);
    dissolveNeuron: (NeuronId) -> (Result_1);
    getCallerUser: () -> (UserRes) query;
+   getClaimableSupply: () -> (nat) query;
    getStakingAccount: (Flower) -> (Account) query;
    getUserNeurons: (principal) -> (vec Neuron) query;
    getUserVotingPower: (principal) -> (nat) query;

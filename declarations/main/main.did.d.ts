@@ -34,6 +34,7 @@ export interface Main {
   'disburseNeuron' : ActorMethod<[NeuronId, Account], Result_1>,
   'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
   'getCallerUser' : ActorMethod<[], UserRes>,
+  'getClaimableSupply' : ActorMethod<[], bigint>,
   'getStakingAccount' : ActorMethod<[Flower], Account>,
   'getUserNeurons' : ActorMethod<[Principal], Array<Neuron>>,
   'getUserVotingPower' : ActorMethod<[Principal], bigint>,

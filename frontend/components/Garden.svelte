@@ -8,6 +8,7 @@
   import { Collection } from '../types';
   import Rewards from './Rewards.svelte';
   import DisclaimerModal from './DisclaimerModal.svelte';
+  import SeedTokenCard from './SeedTokenCard.svelte';
 
   type Flower = {
     collection: Collection;
@@ -98,13 +99,17 @@
 
 <div class="px-10 pb-40">
   {#if !isAuthed}
-    <div class="text-xl text-gray-500">Connect your wallet to see your garden</div>
+    <div class="text-xl text-center text-gray-500">Connect your wallet to see your garden</div>
+    <SeedTokenCard></SeedTokenCard>
   {:else if gardenLoading}
     <div class="flex items-center gap-3 py-10 mt-7 text-3xl"><Loader></Loader> Loading...</div>
   {:else}
-    <div class="py-10 text-3xl">Your rewards</div>
-    <div class="flex gap-20 flex-wrap">
-      <Rewards {user}></Rewards>
+    <div class="flex justify-between items-start flex-wrap">
+      <div>
+        <div class="py-10 text-3xl">Your rewards</div>
+        <Rewards {user}></Rewards>
+      </div>
+      <SeedTokenCard></SeedTokenCard>
     </div>
 
     <div class="py-10 mt-7 text-3xl">Flowers in your garden</div>

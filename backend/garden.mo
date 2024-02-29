@@ -68,11 +68,11 @@ module {
     public func setTimers() {
       Timer.cancelTimer(timerId);
       timerId := Timer.recurringTimer(#nanoseconds(Utils.toNanos(initArgs.rewardInterval)), func() : async () {
-        ignore _mintRewards();
+        _mintRewards();
       });
     };
 
-    func _mintRewards() : async () {
+    func _mintRewards() {
       let now = Time.now();
 
       for (user in Map.vals(users)) {
@@ -119,6 +119,14 @@ module {
           totalRewards = user.totalRewards + userRewards;
         });
       };
+    };
+
+    public func getClaimableSupply() : Nat {
+      var supply = 0;
+      for (user in Map.vals(users)) {
+        supply += user.rewards;
+      };
+      supply;
     };
 
     // USERS
