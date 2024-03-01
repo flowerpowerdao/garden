@@ -14,7 +14,7 @@
   };
 
   let getFlowerCount = (collection: string) => {
-    return user.neurons.filter(n => collection in n.flower.collection).length;
+    return user.neurons.filter(n => 'DissolveDelay' in n.dissolveState && collection in n.flower.collection).length;
   };
 
   let trilogyCount = Math.min(...[1, getFlowerCount('BTCFlower'), getFlowerCount('ETHFlower'), getFlowerCount('ICPFlower')]);

@@ -80,15 +80,15 @@ module {
         let userFlowersByCollection = Map.new<Nat8, Nat>();
 
         for (neuron in Map.vals(user.neurons)) {
-          let collectionIndex : Nat8 = _getCollectionIndex(neuron.flower.collection);
-          ignore Map.update<Nat8, Nat>(userFlowersByCollection, Map.n8hash, collectionIndex, func(key, oldVal) = ?(Option.get(oldVal, 0) + 1));
-
           switch (neuron.dissolveState) {
             // not dissolving
             case (#DissolveDelay(_)) {
               let elapsedTime = Int.abs(now - neuron.prevRewardTime);
               let dailyRewards = getFlowerDailyRewards(neuron.flower);
               let neuronRewards = BIG_NUMBER * dailyRewards * elapsedTime / DAY / BIG_NUMBER;
+
+              let collectionIndex : Nat8 = _getCollectionIndex(neuron.flower.collection);
+              ignore Map.update<Nat8, Nat>(userFlowersByCollection, Map.n8hash, collectionIndex, func(key, oldVal) = ?(Option.get(oldVal, 0) + 1));
 
               // add rewards to neuron
               Map.set(user.neurons, Map.nhash, neuron.id, {
