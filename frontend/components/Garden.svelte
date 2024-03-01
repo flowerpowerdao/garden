@@ -18,80 +18,108 @@
 
   let loading = false;
   let gardenLoading = true;
-  $: isAuthed = $authStore.isAuthed;
+  let inited = false;
+
+  $: isAuthed = $store.actorsAuthed;
+  $: if ($store.actorsAuthed && !inited) {
+    inited = true;
+    load();
+  };
+  $: if (!$store.actorsAuthed) {
+    inited = false;
+  };
 
   let user: UserRes;
+
+  let unstakedBtcFlowers: Flower[] = [];
+  let unstakedEthFlowers: Flower[] = [];
+  let unstakedIcpFlowers: Flower[] = [];
+  let unstakedBtcFlowersGen2: Flower[] = [];
+
   let unstakedFlowers: Flower[] = [];
   let stakedFlowers: Flower[] = [];
 
-  $: if ($authStore.isAuthed) {
-    load();
-  };
+  type RefreshTarget = 'staked' | 'all';
 
-  async function load() {
+  async function load(refresh = false, target: RefreshTarget = 'all') {
+    console.trace(11);
     if (loading) {
       return;
     }
-    loading = true;
-    gardenLoading = true;
 
-    unstakedFlowers = [];
-    stakedFlowers = [];
+    if (!refresh) {
+      loading = true;
+      gardenLoading = true;
+    }
+
     let loadUnstakedBtcFlowers = async () => {
       let res = await $store.btcFlowerActor.tokens($authStore.accountId);
       if ('ok' in res) {
-        unstakedFlowers = [...unstakedFlowers, ...Array.from(res.ok).map((tokenIndex) => ({ collection: 'btcFlower' as Collection, tokenIndex }))];
+        unstakedBtcFlowers = Array.from(res.ok).map((tokenIndex) => ({ collection: 'btcFlower' as Collection, tokenIndex }));
       }
     }
 
     let loadUnstakedEthFlowers = async () => {
       let res = await $store.ethFlowerActor.tokens($authStore.accountId);
       if ('ok' in res) {
-        unstakedFlowers = [...unstakedFlowers, ...Array.from(res.ok).map((tokenIndex) => ({ collection: 'ethFlower' as Collection, tokenIndex }))];
+        unstakedEthFlowers = Array.from(res.ok).map((tokenIndex) => ({ collection: 'ethFlower' as Collection, tokenIndex }));
       }
     }
 
     let loadUnstakedIcpFlowers = async () => {
       let res = await $store.icpFlowerActor.tokens($authStore.accountId);
       if ('ok' in res) {
-        unstakedFlowers = [...unstakedFlowers, ...Array.from(res.ok).map((tokenIndex) => ({ collection: 'icpFlower' as Collection, tokenIndex }))];
+        unstakedIcpFlowers = Array.from(res.ok).map((tokenIndex) => ({ collection: 'icpFlower' as Collection, tokenIndex }));
       }
     }
 
     let loadUnstakedBtcFlowersGen2 = async () => {
       let res = await $store.btcFlowerGen2Actor.tokens($authStore.accountId);
       if ('ok' in res) {
-        unstakedFlowers = [...unstakedFlowers, ...Array.from(res.ok).map((tokenIndex) => ({ collection: 'btcFlowerGen2' as Collection, tokenIndex }))];
+        unstakedBtcFlowersGen2 = Array.from(res.ok).map((tokenIndex) => ({ collection: 'btcFlowerGen2' as Collection, tokenIndex }));
       }
     }
 
     let loadStakedFlowers = async () => {
       user = await $store.gardenActor.getCallerUser();
+
+      let stkdFlowers: Flower[] = [];
       for (let neuron of user.neurons) {
         console.log(neuron)
-        stakedFlowers.push({
+        stkdFlowers.push({
           collection: Object.keys(neuron.flower.collection)[0].replace('BTC', 'btc').replace('ETH', 'eth').replace('ICP', 'icp') as Collection,
           tokenIndex: Number(neuron.flower.tokenIndex),
           neuron: neuron,
         });
       }
-      stakedFlowers = [...stakedFlowers];
+      stakedFlowers = [...stkdFlowers];
       console.log(user, stakedFlowers)
     }
 
     await Promise.all([
-      loadUnstakedBtcFlowers(),
-      loadUnstakedEthFlowers(),
-      loadUnstakedIcpFlowers(),
-      loadUnstakedBtcFlowersGen2(),
+      target !== 'staked' && loadUnstakedBtcFlowers(),
+      target !== 'staked' && loadUnstakedEthFlowers(),
+      target !== 'staked' && loadUnstakedIcpFlowers(),
+      target !== 'staked' && loadUnstakedBtcFlowersGen2(),
       loadStakedFlowers(),
     ]);
+
+    unstakedFlowers = [
+      ...unstakedBtcFlowers,
+      ...unstakedEthFlowers,
+      ...unstakedIcpFlowers,
+      ...unstakedBtcFlowersGen2,
+    ];
 
     loading = false;
     gardenLoading = false;
   }
 
-  setContext('refreshGarden', load);
+  async function refreshGarden(target: RefreshTarget = 'all') {
+    await load(true, target);
+  }
+
+  setContext('refreshGarden', refreshGarden);
 </script>
 
 
@@ -114,16 +142,16 @@
 
     <div class="py-10 mt-7 text-3xl">Flowers in your garden</div>
     <div class="flex gap-20 flex-wrap">
-      {#each stakedFlowers as flower}
+      {#each stakedFlowers as flower (flower.collection + flower.tokenIndex)}
         <StakedFlower neuron={flower.neuron}></StakedFlower>
       {:else}
         <div class="text-xl text-gray-500">No flowers in Garden</div>
       {/each}
     </div>
 
-    <div class="py-10 mt-7 text-3xl">Flowers in your wallet</div>
+    <div class="py-10 mt-10 text-3xl">Flowers in your wallet</div>
     <div class="flex gap-20 flex-wrap">
-      {#each unstakedFlowers as flower}
+      {#each unstakedFlowers as flower (flower.collection + flower.tokenIndex)}
         <UnstakedFlower collection={flower.collection} tokenIndex={flower.tokenIndex}></UnstakedFlower>
       {:else}
         <div class="text-xl text-gray-500">No flowers in your wallet</div>

@@ -9,7 +9,7 @@
 
   export let neuron: Neuron;
 
-  let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
+  let refreshGarden = getContext('refreshGarden') as (target: string) => Promise<void>;
 
   let dailyReward = getCollectionDailyRewards(getNeuronCollection(neuron));
   let modalOpen = false;
@@ -32,7 +32,7 @@
       return;
     }
 
-    await refreshGarden();
+    await refreshGarden('staked');
 
     loading = false;
     modalOpen = false;
@@ -54,7 +54,7 @@
       {:else}
         <div class="text-xl flex flex-col gap-4">
           <div>You are about to replant your flower.</div>
-          <div>Planted flower will give you {dailyReward} SEED tokens every day.</div>asd
+          <div>Planted flower will give you {dailyReward} SEED tokens every day.</div>
           <div>If you decide to extract the flower you have to wait 30 day before you can withdraw the flower.</div>
         </div>
         <Button style="w-auto px-20 py-8 h-10 mt-10 rounded-[55px]" disabled={loading} on:click={restake}>

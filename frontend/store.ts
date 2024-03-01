@@ -16,6 +16,7 @@ import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId, btcFlowe
 export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://icp0.io";
 
 type State = {
+  actorsAuthed: boolean;
   gardenActor: typeof garden;
   btcFlowerActor: typeof ext;
   ethFlowerActor: typeof ext;
@@ -24,6 +25,7 @@ type State = {
 };
 
 const defaultState: State = {
+  actorsAuthed: false,
   gardenActor: createGardenActor(gardenCanisterId, {
     agentOptions: { host: HOST },
   }),
@@ -62,6 +64,7 @@ export const createStore = (authStore: AuthStore) => {
         update((prevState) => {
           return {
             ...prevState,
+            actorsAuthed: true,
             gardenActor,
             btcFlowerActor,
             ethFlowerActor,

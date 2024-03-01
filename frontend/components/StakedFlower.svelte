@@ -5,7 +5,6 @@
   import FlowerPreview from './FlowerPreview.svelte';
   import DissolveModal from './DissolveModal.svelte';
   import RestakeModal from './RestakeModal.svelte';
-  import WithdrawModal from './WithdrawModal.svelte';
   import DisburseModal from './DisburseModal.svelte';
   import { getCollectionDailyRewards, getNeuronCollection, getNeuronTokenIndex } from '../utils';
   import { Neuron } from '../../declarations/main/main.did';
@@ -32,21 +31,28 @@
   };
 
   let state = 'staked';
-  if ('DissolveTimestamp' in neuron.dissolveState) {
-    if (neuron.dissolveState.DissolveTimestamp / 1_000_000n > BigInt(Date.now())) {
-      state = 'dissolving';
-    } else {
-      state = 'dissolved';
+  $: {
+    if ('DissolveTimestamp' in neuron.dissolveState) {
+      if (neuron.dissolveState.DissolveTimestamp / 1_000_000n > BigInt(Date.now())) {
+        state = 'dissolving';
+      } else {
+        state = 'dissolved';
+      }
+    }
+    else {
+      state = 'staked';
     }
   }
 
   let status = '';
-  $: if (state === 'staked') {
-    status = 'Planted';
-  } else if (state === 'dissolving' && 'DissolveTimestamp' in neuron.dissolveState) {
-    status = `Extracting: ${formatDistanceToNowStrict(new Date(Number(neuron.dissolveState.DissolveTimestamp / 1_000_000n)))} left`;
-  } else if (state === 'dissolved') {
-    status = 'Extracted';
+  $: {
+    if (state === 'staked') {
+      status = 'Planted';
+    } else if (state === 'dissolving' && 'DissolveTimestamp' in neuron.dissolveState) {
+      status = `Extracting: ${formatDistanceToNowStrict(new Date(Number(neuron.dissolveState.DissolveTimestamp / 1_000_000n)))} left`;
+    } else if (state === 'dissolved') {
+      status = 'Extracted';
+    }
   }
 </script>
 
@@ -54,7 +60,7 @@
   <div class="flex flex-col gap-2">
     <div class="mb-1"></div>
 
-    <div>{status}</div>
+    <div class="-mr-1">{status}</div>
     {#if state === 'staked'}
       <div>Produces: <span class="font-bold">{getCollectionDailyRewards(getNeuronCollection(neuron))}</span> SEED/day</div>
     {/if}

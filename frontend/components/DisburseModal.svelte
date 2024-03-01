@@ -13,7 +13,7 @@
   export let neuron: Neuron;
   export let collection: Collection;
 
-  let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
+  let refreshGarden = getContext('refreshGarden') as (target: string) => Promise<void>;
 
   let modalOpen = false;
   let loading = false;
@@ -51,7 +51,7 @@
       return;
     }
 
-    await refreshGarden();
+    await refreshGarden('all');
   }
 </script>
 

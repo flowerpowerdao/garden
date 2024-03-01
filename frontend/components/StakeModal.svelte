@@ -11,7 +11,7 @@
   export let collection: Collection;
   export let tokenIndex: number;
 
-  let refreshGarden = getContext('refreshGarden') as () => Promise<void>;
+  let refreshGarden = getContext('refreshGarden') as (target: string) => Promise<void>;
 
   let dailyReward = getCollectionDailyRewards(collection);
   let modalOpen = false;
@@ -90,7 +90,7 @@
       return;
     }
 
-    await refreshGarden();
+    await refreshGarden('all');
 
     loading = false;
     modalOpen = false;
