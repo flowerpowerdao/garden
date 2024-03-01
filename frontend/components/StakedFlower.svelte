@@ -60,7 +60,7 @@
   <div class="flex flex-col gap-2">
     <div class="mb-1"></div>
 
-    <div class="-mr-1">{status}</div>
+    <div class="-mr-2">{status}</div>
     {#if state === 'staked'}
       <div>Produces: <span class="font-bold">{getCollectionDailyRewards(getNeuronCollection(neuron))}</span> SEED/day</div>
     {/if}

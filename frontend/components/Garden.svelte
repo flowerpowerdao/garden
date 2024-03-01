@@ -42,7 +42,6 @@
   type RefreshTarget = 'staked' | 'all';
 
   async function load(refresh = false, target: RefreshTarget = 'all') {
-    console.trace(11);
     if (loading) {
       return;
     }
@@ -85,7 +84,6 @@
 
       let stkdFlowers: Flower[] = [];
       for (let neuron of user.neurons) {
-        console.log(neuron)
         stkdFlowers.push({
           collection: Object.keys(neuron.flower.collection)[0].replace('BTC', 'btc').replace('ETH', 'eth').replace('ICP', 'icp') as Collection,
           tokenIndex: Number(neuron.flower.tokenIndex),
