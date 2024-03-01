@@ -1,6 +1,7 @@
 <script lang="ts">
   import {onMount} from 'svelte';
   import { authStore, store } from '../store';
+  import seedSvg from '../img/seed.svg';
 
   import { idlFactory as idlFactorySeed, createActor } from '../../declarations/icrc1/index.js';
   import { _SERVICE as _SERVICE_SEED } from '../../declarations/icrc1/icrc1.did';
@@ -15,16 +16,16 @@
   });
 </script>
 
-<div class="token p-10 border-2 border-gray-950 rounded-3xl pt-0 mt-10 max-w-max dark:bg-zinc-950 dark:border-gray-400 dark:text-white">
+<div class="ml-auto p-10 border-2 border-gray-950 rounded-3xl pt-0 mt-10 max-w-max dark:bg-zinc-950 dark:border-gray-400 dark:text-white">
   <div class="flex gap-4 py-8 items-center">
-    <img src="../img/seed.svg" width="70" alt="SEED logo">
-    <div class="text-3xl">SEED token </div>
+    <img src="{seedSvg}" width="70" alt="SEED logo">
+    <div class="text-3xl">SEED token</div>
   </div>
   <div class="flex flex-col gap-1">
     <div>Symbol: <code>SEED</code></div>
     <div>Decimals: <code>8</code></div>
     <div>Canister: <code>fua74-fyaaa-aaaan-qecrq-cai</code></div>
-    <div>Standard: <code>ICRC-2</code></div>
+    <div>Standards: <code>ICRC-1, ICRC-2</code></div>
     <div>Transfer fee: <code>0.00001 SEED</code></div>
     <div>Circulating supply: <code>{circulatingSupply.toFixed(8)}</code> SEED</div>
     <div>Claimable supply:&nbsp; <code>{claimableSupply.toFixed(8)}</code> SEED</div>

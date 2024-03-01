@@ -12,7 +12,7 @@
     "deploy:ethflower": "dfx deploy ethflower --argument \"$(cat ethflower-initArgs.did)\" --mode reinstall --yes && dfx canister call ethflower initMint && dfx canister call ethflower shuffleTokensForSale && dfx canister call ethflower airdropTokens && dfx canister call ethflower enableSale",
     "deploy:icpflower": "dfx deploy icpflower --argument \"$(cat icpflower-initArgs.did)\" --mode reinstall --yes && dfx canister call icpflower initMint && dfx canister call icpflower shuffleTokensForSale && dfx canister call icpflower airdropTokens && dfx canister call icpflower enableSale",
     "deploy:btcflower_gen2": "dfx deploy btcflower_gen2 --argument \"$(cat btcflower_gen2-initArgs.did)\" --mode reinstall --yes && dfx canister call btcflower_gen2 initMint && dfx canister call btcflower_gen2 shuffleTokensForSale && dfx canister call btcflower_gen2 airdropTokens && dfx canister call btcflower_gen2 enableSale",
-    "deploy-ic": "dfx deploy main --argument \"$(cat initArgs.ic.did)\" --network ic && dfx deploy assets --network ic",
+    "deploy-ic": "dfx deploy main --argument \"$(cat initArgs.ic.did)\" --network ic --identity fpdao --upgrade-unchanged && dfx deploy assets --network ic --identity fpdao",
     "mint": ". ./set-deploy-env.zsh && tsx ./test/mint.ts",
     "serve": "cd frontend && vite --port 3000",
     "build": "cd frontend && vite build",
