@@ -15,8 +15,11 @@
   });
 </script>
 
-<div class="token p-10 border-2 border-gray-950 rounded-3xl pt-0 mt-10 max-w-max">
-  <div class="py-10 text-3xl">SEED token</div>
+<div class="token p-10 border-2 border-gray-950 rounded-3xl pt-0 mt-10 max-w-max dark:bg-zinc-950 dark:border-gray-400 dark:text-white">
+  <div class="flex gap-4 py-8 items-center">
+    <img src="../img/seed.svg" width="60" alt="SEED logo">
+    <div class="text-3xl">SEED token </div>
+  </div>
   <div class="flex flex-col gap-1">
     <div>Symbol: <code>SEED</code></div>
     <div>Decimals: <code>8</code></div>

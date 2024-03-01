@@ -108,7 +108,7 @@ module {
         let btcFlowers = Option.get(Map.get(userFlowersByCollection, Map.n8hash, _getCollectionIndex(#BTCFlower)), 0);
         let ethFlowers = Option.get(Map.get(userFlowersByCollection, Map.n8hash, _getCollectionIndex(#ETHFlower)), 0);
         let icpFlowers = Option.get(Map.get(userFlowersByCollection, Map.n8hash, _getCollectionIndex(#ICPFlower)), 0);
-        let trilogies = Nat.min(btcFlowers, Nat.min(ethFlowers, icpFlowers));
+        let trilogies = Nat.min(1, Nat.min(btcFlowers, Nat.min(ethFlowers, icpFlowers)));
 
         userRewards += userRewards * (trilogies * initArgs.trilogyBonus) / 100;
 

@@ -47,7 +47,6 @@
       <Button style="w-auto px-20 py-8 h-10 mt-10 rounded-[55px]" on:click={accept}>
         Accept
       </Button>
-      <div>&nbsp;</div>
     </div>
   </Modal>
   </div>

@@ -17,14 +17,14 @@
     return user.neurons.filter(n => collection in n.flower.collection).length;
   };
 
-  let trilogyCount = Math.min(...[getFlowerCount('BTCFlower'), getFlowerCount('ETHFlower'), getFlowerCount('ICPFlower')]);
+  let trilogyCount = Math.min(...[1, getFlowerCount('BTCFlower'), getFlowerCount('ETHFlower'), getFlowerCount('ICPFlower')]);
   let growthRate = (getFlowerCount('BTCFlower') * 2 + getFlowerCount('ETHFlower') * 0.5 + getFlowerCount('ICPFlower') * 0.5 + getFlowerCount('BTCFlowerGen2') * 0.5)
   let trilogyBonus = growthRate * trilogyCount * 15 / 100;
   growthRate += trilogyBonus;
 </script>
 
 
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-4 dark:border-gray-100 dark:text-white">
   <div class="text-xl">Balance: <span class="font-bold">{(Number(user.rewards) / 1e8).toFixed(4)}</span> SEED</div>
 
   <Button on:click={toggleWithdrawModal} style="px-8 mb-4">Withdraw</Button>
@@ -36,7 +36,7 @@
       <div><span class="font-semibold">{getFlowerCount('ETHFlower')}</span> ETH Flower <span class="font-semibold">x 0.5</span> SEED = <span class="font-semibold">{getFlowerCount('ETHFlower') * 0.5}</span> SEED/day</div>
       <div><span class="font-semibold">{getFlowerCount('ICPFlower')}</span> ICP Flower <span class="font-semibold">x 0.5</span> SEED = <span class="font-semibold">{getFlowerCount('ICPFlower') * 0.5}</span> SEED/day</div>
       <div><span class="font-semibold">{getFlowerCount('BTCFlowerGen2')}</span> BTC Flower Gen 2.0 <span class="font-semibold">x 0.5</span> SEED = <span class="font-semibold">{getFlowerCount('BTCFlowerGen2') * 0.5}</span> SEED/day</div>
-      <div><span class="font-semibold">{trilogyCount}</span> trilogy bonus <span class="font-semibold">x {trilogyCount * 15}%</span> = <span class="font-semibold">{trilogyBonus}</span> SEED/day</div>
+      <div><span class="font-semibold">+{trilogyCount * 15}%</span> trilogy bonus = <span class="font-semibold">{trilogyBonus}</span> SEED/day</div>
     </div>
   </div>
 </div>

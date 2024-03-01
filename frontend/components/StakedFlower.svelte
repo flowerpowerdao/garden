@@ -74,6 +74,6 @@
   </div>
 </FlowerPreview>
 
-<DissolveModal {neuron} {collection} bind:this={dissolveModal}></DissolveModal>
+<DissolveModal {neuron} bind:this={dissolveModal}></DissolveModal>
 <RestakeModal {neuron} bind:this={restakeModal}></RestakeModal>
 <DisburseModal {neuron} {collection} bind:this={disburseModal}></DisburseModal>

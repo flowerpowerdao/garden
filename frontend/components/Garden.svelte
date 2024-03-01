@@ -97,7 +97,7 @@
 
 <div class="py-20 text-4xl text-center">FPDAO Garden</div>
 
-<div class="px-10 pb-40">
+<div class="px-10 pb-40 dark:text-white">
   {#if !isAuthed}
     <div class="text-xl text-center text-gray-500">Connect your wallet to see your garden</div>
     <SeedTokenCard></SeedTokenCard>
