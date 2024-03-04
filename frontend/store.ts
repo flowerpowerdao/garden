@@ -13,7 +13,7 @@ import {
 } from "../declarations/ext";
 import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId, btcFlowerGen2CanisterId } from './canister-ids';
 
-export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://icp0.io";
+export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://ic0.app";
 
 type State = {
   actorsAuthed: boolean;
@@ -88,6 +88,8 @@ export const createStore = (authStore: AuthStore) => {
 
 export const authStore = createAuthStore({
   whitelist: [
+    'ryjl3-tyaaa-aaaaa-aaaba-cai',
+    gardenCanisterId,
     btcFlowerCanisterId,
     ethFlowerCanisterId,
     icpFlowerCanisterId,
