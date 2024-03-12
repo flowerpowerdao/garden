@@ -65,7 +65,6 @@
     localStorage.setItem(`${collection}-${tokenIndex}-owner`, stakingAccount.owner.toString());
     localStorage.setItem(`${collection}-${tokenIndex}-subaccount`, stakingAccount.subaccount.join(','));
     localStorage.setItem(`${collection}-${tokenIndex}-account-id`, toAccountId(stakingAccount));
-    localStorage.setItem(`${collection}-${tokenIndex}-account-id`, toAccountId(stakingAccount));
 
     console.log('staking account', stakingAccount);
 
