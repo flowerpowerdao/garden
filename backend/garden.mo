@@ -240,13 +240,13 @@ module {
     // NEURONS
     public func stake(userId : Principal, flower : Types.Flower) : async Result.Result<Types.NeuronId, Err> {
       let stakingAccount = getStakingAccount(userId, flower);
-      let flowers = await _getFlowersOnAccount(stakingAccount);
+      let flowerRes = await _checkFlowerOnAccount(flower, stakingAccount);
 
-      if (flowers.size() == 0) {
-        return #err("no flowers found");
-      };
-      if (flowers.size() == 0) {
-        return #err("too many flowers on staking account: " # Nat.toText(flowers.size()));
+      switch (flowerRes) {
+        case (#err(err)) {
+          return #err(err);
+        };
+        case (#ok) {};
       };
 
       curNeuronId += 1;
@@ -392,32 +392,26 @@ module {
       ExtCore.TokenIdentifier.fromPrincipal(Principal.fromActor(collectionActor), Nat32.fromNat(nft.tokenIndex))
     };
 
-    func _getFlowersOnAccount(account : Types.Account) : async [Types.Flower] {
+    func _checkFlowerOnAccount(flower : Types.Flower, account : Types.Account) : async Result.Result<(), Err> {
       let accountId = AccountId.fromPrincipal(account.owner, account.subaccount);
-      let collections = [#BTCFlower, #ETHFlower, #ICPFlower, #BTCFlowerGen2];
-      let flowers = Buffer.Buffer<Types.Flower>(0);
+      let collectionActor = Actors.getActor(flower.collection);
+      let tokens = await collectionActor.tokens(accountId);
 
-      for (collection in collections.vals()) {
-        let collectionActor = Actors.getActor(collection);
-        let tokens = await collectionActor.tokens(accountId);
-
-        switch (tokens) {
-          case (#ok(tokens)) {
-            for (tokenIndex in tokens.vals()) {
-              flowers.add({
-                collection;
-                tokenIndex = Nat32.toNat(tokenIndex);
-              });
-            };
+      switch (tokens) {
+        case (#ok(tokens)) {
+          for (tokenIndex in tokens.vals()) {
+            if (Nat32.toNat(tokenIndex) == flower.tokenIndex) {
+              return #ok;
+            }
           };
-          case (#err(err)) {
-            // skip "no tokens" error
-            // return Debug.trap("Failed to get tokens for collection " # debug_show(collection) # ": " # debug_show(err));
-          };
+        };
+        case (#err(err)) {
+          // skip "no tokens" error
+          // return Debug.trap("Failed to get tokens for collection " # debug_show(collection) # ": " # debug_show(err));
         };
       };
 
-      Buffer.toArray(flowers);
+      return #err("no flowers found on staking account");
     };
   };
 };
