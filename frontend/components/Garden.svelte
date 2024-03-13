@@ -9,6 +9,7 @@
   import Rewards from './Rewards.svelte';
   import DisclaimerModal from './DisclaimerModal.svelte';
   import SeedTokenCard from './SeedTokenCard.svelte';
+  import TroubleshootingModal from './TroubleshootingModal.svelte';
 
   type Flower = {
     collection: Collection;
@@ -28,6 +29,12 @@
   $: if (!$store.actorsAuthed) {
     inited = false;
   };
+
+  let troubleshootingModal: TroubleshootingModal;
+
+  function troubleshooting() {
+    troubleshootingModal.toggleModal();
+  }
 
   let user: UserRes;
 
@@ -138,7 +145,11 @@
       <SeedTokenCard></SeedTokenCard>
     </div>
 
-    <div class="py-10 mt-7 text-3xl">Flowers in your garden</div>
+    <div class="py-10 mt-7 text-3xl flex justify-between items-center flex-wrap">
+      Flowers in your garden
+      <a class="text-base text-gray-500 underline decoration-dotted cursor-pointer" on:click={troubleshooting}>lost a flower?</a>
+    </div>
+
     <div class="flex gap-20 flex-wrap">
       {#each stakedFlowers as flower (flower.collection + flower.tokenIndex)}
         <StakedFlower neuron={flower.neuron}></StakedFlower>
@@ -159,3 +170,4 @@
 </div>
 
 <DisclaimerModal></DisclaimerModal>
+<TroubleshootingModal bind:this={troubleshootingModal}></TroubleshootingModal>

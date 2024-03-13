@@ -15,6 +15,7 @@ import Iter "mo:base/Iter";
 import Nat8 "mo:base/Nat8";
 import Nat16 "mo:base/Nat16";
 import Option "mo:base/Option";
+import Random "mo:base/Random";
 
 import Map "mo:map/Map";
 import {DAY} "mo:time-consts";
@@ -238,9 +239,9 @@ module {
     };
 
     // NEURONS
-    public func stake(userId : Principal, flower : Types.Flower) : async Result.Result<Types.NeuronId, Err> {
+    public func stake(userId : Principal, flower : Types.Flower) : async* Result.Result<Types.NeuronId, Err> {
       let stakingAccount = getStakingAccount(userId, flower);
-      let flowerRes = await _checkFlowerOnAccount(flower, stakingAccount);
+      let flowerRes = await* _checkFlowerOnAccount(flower, stakingAccount);
 
       switch (flowerRes) {
         case (#err(err)) {
@@ -311,7 +312,7 @@ module {
     };
 
     // withdraw flower then remove neuron
-    public func disburseNeuron(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Err> {
+    public func disburseNeuron(userId : Principal, neuronId : Types.NeuronId, toAccount : Types.Account) : async* Result.Result<(), Err> {
       assert(isNeuronOwner(userId, neuronId));
 
       let user = getUser(userId);
@@ -353,7 +354,7 @@ module {
     };
 
     // withdraw SEED tokens
-    public func claimRewards(userId : Principal, toAccount : Types.Account) : async Result.Result<(), Err> {
+    public func claimRewards(userId : Principal, toAccount : Types.Account) : async* Result.Result<(), Err> {
       let user = getUser(userId);
 
       if (user.rewards == 0) {
@@ -383,6 +384,52 @@ module {
       };
     };
 
+    public func withdrawStuckFlower(userId : Principal, flower : Types.Flower) : async* Result.Result<(), Err> {
+      let toAccount = {
+        owner = userId;
+        subaccount = null;
+      };
+      let stakingAccount = getStakingAccount(userId, flower);
+      let flowerRes = await* _checkFlowerOnAccount(flower, stakingAccount);
+
+      switch (flowerRes) {
+        case (#err(err)) {
+          return #err("flower not found");
+        };
+        case (#ok) {};
+      };
+
+      // chck if flower is staked
+      let user = getUser(userId);
+      for (neuron in Map.vals(user.neurons)) {
+        if (neuron.flower == flower) {
+          return #err("flower is planted");
+        };
+      };
+
+      ignore await Random.blob(); // avoid race condition
+
+      let collectionActor = Actors.getActor(flower.collection);
+      let res = await collectionActor.transfer({
+        subaccount = stakingAccount.subaccount; // from subaccount
+        from = #address(_accountToAccountId(stakingAccount));
+        to = #address(_accountToAccountId(toAccount));
+        token = _nftToTokenId(flower);
+        amount = 1;
+        notify = false;
+        memo = [];
+      });
+
+      switch (res) {
+        case (#ok(_)) {
+          #ok;
+        };
+        case (#err(err)) {
+          #err(debug_show(err));
+        };
+      };
+    };
+
     func _accountToAccountId(account : Types.Account) : AccountId.AccountIdentifier {
       AccountId.fromPrincipal(account.owner, account.subaccount);
     };
@@ -392,7 +439,7 @@ module {
       ExtCore.TokenIdentifier.fromPrincipal(Principal.fromActor(collectionActor), Nat32.fromNat(nft.tokenIndex))
     };
 
-    func _checkFlowerOnAccount(flower : Types.Flower, account : Types.Account) : async Result.Result<(), Err> {
+    func _checkFlowerOnAccount(flower : Types.Flower, account : Types.Account) : async* Result.Result<(), Err> {
       let accountId = AccountId.fromPrincipal(account.owner, account.subaccount);
       let collectionActor = Actors.getActor(flower.collection);
       let tokens = await collectionActor.tokens(accountId);

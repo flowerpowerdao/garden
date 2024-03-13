@@ -30,16 +30,17 @@ export interface InitArgs {
   },
 }
 export interface Main {
-  'claimRewards' : ActorMethod<[Account], Result_1>,
-  'disburseNeuron' : ActorMethod<[NeuronId, Account], Result_1>,
-  'dissolveNeuron' : ActorMethod<[NeuronId], Result_1>,
+  'claimRewards' : ActorMethod<[Account], Result>,
+  'disburseNeuron' : ActorMethod<[NeuronId, Account], Result>,
+  'dissolveNeuron' : ActorMethod<[NeuronId], Result>,
   'getCallerUser' : ActorMethod<[], UserRes>,
   'getClaimableSupply' : ActorMethod<[], bigint>,
   'getStakingAccount' : ActorMethod<[Flower], Account>,
   'getUserNeurons' : ActorMethod<[Principal], Array<Neuron>>,
   'getUserVotingPower' : ActorMethod<[Principal], bigint>,
-  'restake' : ActorMethod<[NeuronId], Result_1>,
-  'stake' : ActorMethod<[Flower], Result>,
+  'restake' : ActorMethod<[NeuronId], Result>,
+  'stake' : ActorMethod<[Flower], Result_1>,
+  'withdrawStuckFlower' : ActorMethod<[Flower], Result>,
 }
 export interface Neuron {
   'id' : bigint,
@@ -53,9 +54,9 @@ export interface Neuron {
   'stakingAccount' : Account,
 }
 export type NeuronId = bigint;
-export type Result = { 'ok' : NeuronId } |
+export type Result = { 'ok' : null } |
   { 'err' : string };
-export type Result_1 = { 'ok' : null } |
+export type Result_1 = { 'ok' : NeuronId } |
   { 'err' : string };
 export type Time = bigint;
 export type TokenIndex = bigint;

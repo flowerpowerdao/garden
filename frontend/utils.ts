@@ -64,18 +64,20 @@ export function rewardsForVotingPower(votingPower: number | bigint, totalVotingP
   return rewards;
 }
 
-export let getTokenName = (collection: Collection, tokenIndex: number) => {
-  let collectionName = '';
+export let getCollectionName = (collection: Collection) => {
   if (collection === 'btcFlower') {
-    collectionName = `BTC Flower`;
+    return `BTC Flower`;
   } else if (collection === 'ethFlower') {
-    collectionName = `ETH Flower`;
+    return `ETH Flower`;
   } else if (collection === 'icpFlower') {
-    collectionName = `ICP Flower`;
+    return `ICP Flower`;
   } else if (collection === 'btcFlowerGen2') {
-    collectionName = `BTC Flower Gen 2.0`;
+    return `BTC Flower Gen 2.0`;
   }
-  return `${collectionName} #${tokenIndex + 1}`;
+};
+
+export let getTokenName = (collection: Collection, tokenIndex: number) => {
+  return `${getCollectionName(collection)} #${tokenIndex + 1}`;
 };
 
 export let getCollectionCanisterId = (collection: Collection) => {

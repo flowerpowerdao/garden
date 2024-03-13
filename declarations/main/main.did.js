@@ -21,7 +21,7 @@ export const idlFactory = ({ IDL }) => {
     'owner' : IDL.Principal,
     'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
-  const Result_1 = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
+  const Result = IDL.Variant({ 'ok' : IDL.Null, 'err' : IDL.Text });
   const NeuronId = IDL.Nat;
   const Time = IDL.Int;
   const Collection = IDL.Variant({
@@ -57,18 +57,19 @@ export const idlFactory = ({ IDL }) => {
     'rewards' : IDL.Nat,
     'neurons' : IDL.Vec(Neuron),
   });
-  const Result = IDL.Variant({ 'ok' : NeuronId, 'err' : IDL.Text });
+  const Result_1 = IDL.Variant({ 'ok' : NeuronId, 'err' : IDL.Text });
   const Main = IDL.Service({
-    'claimRewards' : IDL.Func([Account], [Result_1], []),
-    'disburseNeuron' : IDL.Func([NeuronId, Account], [Result_1], []),
-    'dissolveNeuron' : IDL.Func([NeuronId], [Result_1], []),
+    'claimRewards' : IDL.Func([Account], [Result], []),
+    'disburseNeuron' : IDL.Func([NeuronId, Account], [Result], []),
+    'dissolveNeuron' : IDL.Func([NeuronId], [Result], []),
     'getCallerUser' : IDL.Func([], [UserRes], ['query']),
     'getClaimableSupply' : IDL.Func([], [IDL.Nat], ['query']),
     'getStakingAccount' : IDL.Func([Flower], [Account], ['query']),
     'getUserNeurons' : IDL.Func([IDL.Principal], [IDL.Vec(Neuron)], ['query']),
     'getUserVotingPower' : IDL.Func([IDL.Principal], [IDL.Nat], ['query']),
-    'restake' : IDL.Func([NeuronId], [Result_1], []),
-    'stake' : IDL.Func([Flower], [Result], []),
+    'restake' : IDL.Func([NeuronId], [Result], []),
+    'stake' : IDL.Func([Flower], [Result_1], []),
+    'withdrawStuckFlower' : IDL.Func([Flower], [Result], []),
   });
   return Main;
 };

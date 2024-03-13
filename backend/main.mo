@@ -37,7 +37,7 @@ actor class Main(selfId : Principal, initArgs : Types.InitArgs) {
   };
 
   public shared ({caller}) func stake(flower : Types.Flower) : async Result.Result<Types.NeuronId, Text> {
-    await garden.stake(caller, flower);
+    await* garden.stake(caller, flower);
   };
 
   public shared ({caller}) func restake(neuronId : Types.NeuronId) : async Result.Result<(), Text> {
@@ -57,11 +57,15 @@ actor class Main(selfId : Principal, initArgs : Types.InitArgs) {
   };
 
   public shared ({caller}) func claimRewards(toAccount : Types.Account) : async Result.Result<(), Text> {
-    await garden.claimRewards(caller, toAccount);
+    await* garden.claimRewards(caller, toAccount);
   };
 
   public shared ({caller}) func disburseNeuron(neuronId : Types.NeuronId, toAccount : Types.Account) : async Result.Result<(), Text> {
-    await garden.disburseNeuron(caller, neuronId, toAccount);
+    await* garden.disburseNeuron(caller, neuronId, toAccount);
+  };
+
+  public shared ({caller}) func withdrawStuckFlower(flower : Types.Flower) : async Result.Result<(), Text> {
+    await* garden.withdrawStuckFlower(caller, flower);
   };
 
   // for fpdao app

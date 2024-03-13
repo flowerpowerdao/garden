@@ -11,12 +11,12 @@ type Time = int;
 type Result_1 = 
  variant {
    err: text;
-   ok;
+   ok: NeuronId;
  };
 type Result = 
  variant {
    err: text;
-   ok: NeuronId;
+   ok;
  };
 type NeuronId = nat;
 type Neuron = 
@@ -33,16 +33,17 @@ type Neuron =
  };
 type Main = 
  service {
-   claimRewards: (Account) -> (Result_1);
-   disburseNeuron: (NeuronId, Account) -> (Result_1);
-   dissolveNeuron: (NeuronId) -> (Result_1);
+   claimRewards: (Account) -> (Result);
+   disburseNeuron: (NeuronId, Account) -> (Result);
+   dissolveNeuron: (NeuronId) -> (Result);
    getCallerUser: () -> (UserRes) query;
    getClaimableSupply: () -> (nat) query;
    getStakingAccount: (Flower) -> (Account) query;
    getUserNeurons: (principal) -> (vec Neuron) query;
    getUserVotingPower: (principal) -> (nat) query;
-   restake: (NeuronId) -> (Result_1);
-   stake: (Flower) -> (Result);
+   restake: (NeuronId) -> (Result);
+   stake: (Flower) -> (Result_1);
+   withdrawStuckFlower: (Flower) -> (Result);
  };
 type InitArgs = 
  record {
