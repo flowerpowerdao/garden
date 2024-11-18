@@ -91,6 +91,6 @@
       "args": ""
     }
   },
-  "dfx": "0.23.0",
+  "dfx": "0.24.2",
   "output_env_file": ".env"
 }

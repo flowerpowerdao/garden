@@ -13,7 +13,7 @@ import {
 } from "../declarations/ext";
 import { btcFlowerCanisterId, ethFlowerCanisterId, icpFlowerCanisterId, btcFlowerGen2CanisterId } from './canister-ids';
 
-export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://ic0.app";
+export const HOST = process.env.DFX_NETWORK !== "ic" ? "http://localhost:4943" : "https://icp-api.io";
 
 type State = {
   actorsAuthed: boolean;
