@@ -361,9 +361,13 @@ module {
         return #err("no rewards to claim");
       };
 
+      // add gardener trilogy bonus
+      let gardenerTrilogies = await _getGardenerTrilogyCountOnAccount(toAccount);
+      let userRewards = user.rewards + user.rewards * (gardenerTrilogies * initArgs.trilogyBonus) / 100;
+
       let res = await Actors.SEED.icrc1_transfer({
         to = toAccount;
-        amount = user.rewards;
+        amount = userRewards;
         fee = null;
         memo = null;
         from_subaccount = null;
@@ -459,6 +463,46 @@ module {
       };
 
       return #err("no flowers found on staking account");
+    };
+
+    func _getGardenerTrilogyCountOnAccount(account : Types.Account) : async Nat {
+      let pineapples = await _getGardenerTokensOnAccount(#PineaplplePunks, account);
+      if (pineapples.size() == 0) {
+        return 0;
+      };
+
+      let cherries = await _getGardenerTokensOnAccount(#Cherries, account);
+      if (cherries.size() == 0) {
+        return 0;
+      };
+
+      let grapes = await _getGardenerTokensOnAccount(#Grapes, account);
+      if (grapes.size() == 0) {
+        return 0;
+      };
+
+      return Nat.min(pineapples.size(), Nat.min(cherries.size(), grapes.size()));
+    };
+
+    func _getGardenerTokensOnAccount(gardenerType : Types.GardenerCollection, account : Types.Account) : async [Nat] {
+      let accountId = AccountId.fromPrincipal(account.owner, account.subaccount);
+      let gardenerActor = Actors.getGardenerActor(gardenerType);
+      let tokens = await gardenerActor.tokens(accountId);
+
+      switch (tokens) {
+        case (#ok(tokens)) {
+          return Array.map<Nat32, Nat>(tokens, func(tokenIndex) {
+            Nat32.toNat(tokenIndex);
+          });
+        };
+        case (#err(err)) {
+          return [];
+          // skip "no tokens" error
+          // return Debug.trap("Failed to get tokens for collection " # debug_show(collection) # ": " # debug_show(err));
+        };
+      };
+
+      return [];
     };
   };
 };

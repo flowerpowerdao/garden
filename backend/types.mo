@@ -18,6 +18,12 @@ module {
     #BTCFlowerGen2;
   };
 
+  public type GardenerCollection = {
+    #PineaplplePunks;
+    #Cherries;
+    #Grapes;
+  };
+
   public type Flower = {
     collection : Collection;
     tokenIndex : TokenIndex;
@@ -73,5 +79,6 @@ module {
     stakePeriod : Duration;
     rewardInterval : Duration;
     trilogyBonus : Nat; // %
+    gardenerTrilogyBonus : Nat; // %
   };
 };

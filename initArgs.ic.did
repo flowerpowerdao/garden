@@ -10,5 +10,6 @@
     stakePeriod = variant { days = 30 };
     rewardInterval = variant { minutes = 10 };
     trilogyBonus = 15; // 15%
+    gardenerTrilogyBonus = 5; // 5%
   }
 )
