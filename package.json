@@ -13,6 +13,7 @@
     "deploy:icpflower": "dfx deploy icpflower --argument \"$(cat icpflower-initArgs.did)\" --mode reinstall --yes && dfx canister call icpflower initMint && dfx canister call icpflower shuffleTokensForSale && dfx canister call icpflower airdropTokens && dfx canister call icpflower enableSale",
     "deploy:btcflower_gen2": "dfx deploy btcflower_gen2 --argument \"$(cat btcflower_gen2-initArgs.did)\" --mode reinstall --yes && dfx canister call btcflower_gen2 initMint && dfx canister call btcflower_gen2 shuffleTokensForSale && dfx canister call btcflower_gen2 airdropTokens && dfx canister call btcflower_gen2 enableSale",
     "deploy-ic": "dfx deploy main --argument \"$(cat initArgs.ic.did)\" --network ic --identity fpdao --upgrade-unchanged && dfx deploy assets --network ic --identity fpdao",
+    "deploy-ic:assets": "dfx deploy assets --network ic --identity fpdao",
     "mint": ". ./set-deploy-env.zsh && tsx ./test/mint.ts",
     "serve": "cd frontend && vite --port 3000",
     "build": "cd frontend && vite build",
