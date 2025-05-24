@@ -164,12 +164,26 @@ module {
     };
 
     public func getFlowerDailyRewards(flower : Types.Flower) : Nat {
-      switch (flower.collection) {
+      let halvings = [
+        1748131200000000000,
+        1779667200000000000,
+        1811203200000000000,
+        1842825600000000000,
+        9184282560000000000,
+      ];
+
+      let rewards = switch (flower.collection) {
         case (#BTCFlower) initArgs.dailyRewards.btcFlower;
         case (#ETHFlower) initArgs.dailyRewards.ethFlower;
         case (#ICPFlower) initArgs.dailyRewards.icpFlower;
         case (#BTCFlowerGen2) initArgs.dailyRewards.btcFlowerGen2;
       };
+
+      let halvingIndex = Array.indexOf<Nat>(Int.abs(Time.now()), halvings, func(halving, now) {
+        now < halving
+      }) |> Option.get(_, 0);
+
+      rewards / (2 ** halvingIndex);
     };
 
     public func getTotalVotingPower() : Nat {

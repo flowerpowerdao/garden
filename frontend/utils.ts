@@ -103,5 +103,18 @@ export let getNeuronTokenIndex = (neuron: Neuron): number => {
 }
 
 export let getCollectionDailyRewards = (collection: Collection): number => {
-  return collection === 'btcFlower' ? 2 : 0.5;
+  return applyHalvings(collection === 'btcFlower' ? 2 : 0.5);
+}
+
+let halvings = [
+  1748131200000,
+  1779667200000,
+  1811203200000,
+  1842825600000,
+  Infinity,
+]
+
+export let applyHalvings = (rewards: number): number => {
+  let halvingIndex = halvings.findIndex(h => Date.now() < h);
+  return rewards / 2 ** halvingIndex;
 }
